@@ -38,7 +38,7 @@
 
                 <div class="mt-4 space-y-3">
                     @forelse ($projects as $project)
-                        <a href="{{ route('projects.show', $project) }}"
+                        <a href="{{ route('projects.overview', $project) }}"
                            class="block p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900 transition">
                             <div class="flex items-center justify-between">
                                 <div>
