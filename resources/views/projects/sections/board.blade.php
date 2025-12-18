@@ -117,7 +117,6 @@
                 statusEl.textContent = msg || '';
             }
 
-            // ✅ Update counts instantly (no reload)
             function updateCountsFromDOM() {
                 const todoCol = document.querySelector('.kanban-col[data-column="todo"]');
                 const progCol = document.querySelector('.kanban-col[data-column="in_progress"]');
@@ -127,7 +126,6 @@
                 const progCount = progCol ? progCol.querySelectorAll('[data-task-id]').length : 0;
                 const doneCount = doneCol ? doneCol.querySelectorAll('[data-task-id]').length : 0;
 
-                // Column header counts
                 const todoHdr = document.querySelector('[data-col-count="todo"]');
                 const progHdr = document.querySelector('[data-col-count="in_progress"]');
                 const doneHdr = document.querySelector('[data-col-count="completed"]');
@@ -136,12 +134,10 @@
                 if (progHdr) progHdr.textContent = progCount;
                 if (doneHdr) doneHdr.textContent = doneCount;
 
-                // Summary counts
                 if (pendingCountEl) pendingCountEl.textContent = (todoCount + progCount);
                 if (completedCountEl) completedCountEl.textContent = doneCount;
             }
 
-            // ✅ Queue saves to avoid race conditions
             const saveQueue = new WeakMap();
 
             function getOrderedIds(columnEl) {
@@ -185,7 +181,7 @@
                 const current = saveQueue.get(columnEl) || Promise.resolve();
 
                 const next = current
-                    .catch(() => {}) // keep queue alive
+                    .catch(() => {})
                     .then(async () => {
                         setStatus('Saving…');
                         await postMove(column, orderedIds);
@@ -209,13 +205,10 @@
                     animation: 150,
                     ghostClass: 'opacity-50',
                     onEnd: async (evt) => {
-                        // ✅ Update counts immediately after drop (instant UI)
                         updateCountsFromDOM();
 
-                        // Save destination ordering
                         await saveColumnOrder(evt.to);
 
-                        // Save source ordering if moved across columns
                         if (evt.from !== evt.to) {
                             await saveColumnOrder(evt.from);
                         }

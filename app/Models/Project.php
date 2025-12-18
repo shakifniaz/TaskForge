@@ -31,4 +31,10 @@ class Project extends Model
             ->withPivot('role')
             ->withTimestamps();
     }
+
+    public function files()
+    {
+        return $this->hasMany(\App\Models\ProjectFile::class);
+    }
+
 }

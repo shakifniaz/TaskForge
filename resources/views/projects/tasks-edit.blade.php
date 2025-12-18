@@ -47,7 +47,6 @@
                         </select>
                     </div>
 
-                    {{-- ✅ Milestone dropdown --}}
                     <div>
                         <label class="block text-sm text-gray-700 mb-1">Milestone (optional)</label>
                         <select name="milestone_id" class="w-full rounded-md border-gray-300">

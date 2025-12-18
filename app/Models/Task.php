@@ -8,7 +8,7 @@ class Task extends Model
 {
     protected $fillable = [
         'project_id',
-        'milestone_id', // ✅ added
+        'milestone_id',
         'created_by',
         'assigned_to',
         'title',
@@ -38,9 +38,14 @@ class Task extends Model
         return $this->belongsTo(User::class, 'assigned_to');
     }
 
-    // ✅ milestone relation
     public function milestone()
     {
         return $this->belongsTo(Milestone::class);
     }
+
+    public function files()
+    {
+        return $this->hasMany(\App\Models\ProjectFile::class);
+    }
+
 }

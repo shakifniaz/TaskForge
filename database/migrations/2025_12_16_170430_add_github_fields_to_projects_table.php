@@ -9,9 +9,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('projects', function (Blueprint $table) {
-            $table->string('github_repo')->nullable()->after('name');         // owner/repo
+            $table->string('github_repo')->nullable()->after('name');
             $table->string('github_default_branch')->nullable()->after('github_repo');
-            $table->text('github_token')->nullable()->after('github_default_branch'); // encrypted text
+            $table->text('github_token')->nullable()->after('github_default_branch');
         });
     }
 

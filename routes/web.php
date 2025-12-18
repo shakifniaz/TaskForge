@@ -13,6 +13,7 @@ use App\Http\Controllers\ProjectTasksController;
 use App\Http\Controllers\ProjectBoardController;
 use App\Http\Controllers\ProjectRoadmapController;
 use App\Http\Controllers\ProjectActivityController;
+use App\Http\Controllers\ProjectFilesController;
 
 
 Route::get('/', function () {
@@ -38,30 +39,19 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['auth'])->group(function () {
 
-    /*
-    | Projects list + create
-    */
     Route::get('/projects', [ProjectController::class, 'index'])
         ->name('projects.index');
 
     Route::post('/projects', [ProjectController::class, 'store'])
         ->name('projects.store');
 
-    /*
-    | Default project page → Overview
-    */
     Route::get('/projects/{project}', [ProjectSectionController::class, 'overview'])
         ->name('projects.overview');
 
-    /*
-    | Sidebar sections (empty placeholders for now)
-    */
 
     Route::get('/projects/{project}/tasks', [ProjectTasksController::class, 'index'])->name('projects.tasks');
-
     Route::get('/projects/{project}/tasks/create', [ProjectTasksController::class, 'create'])->name('projects.tasks.create');
     Route::post('/projects/{project}/tasks', [ProjectTasksController::class, 'store'])->name('projects.tasks.store');
-
     Route::get('/projects/{project}/tasks/{task}/edit', [ProjectTasksController::class, 'edit'])->name('projects.tasks.edit');
     Route::patch('/projects/{project}/tasks/{task}', [ProjectTasksController::class, 'update'])->name('projects.tasks.update');
     Route::delete('/projects/{project}/tasks/{task}', [ProjectTasksController::class, 'destroy'])->name('projects.tasks.destroy');
@@ -71,24 +61,30 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/projects/{project}/board/move', [ProjectBoardController::class, 'move'])->name('projects.board.move');
 
     Route::get('/projects/{project}/roadmap', [ProjectRoadmapController::class, 'index'])->name('projects.roadmap');
-
     Route::get('/projects/{project}/roadmap/create', [ProjectRoadmapController::class, 'create'])->name('projects.roadmap.create');
     Route::post('/projects/{project}/roadmap', [ProjectRoadmapController::class, 'store'])->name('projects.roadmap.store');
-
     Route::get('/projects/{project}/roadmap/{milestone}/edit', [ProjectRoadmapController::class, 'edit'])->name('projects.roadmap.edit');
     Route::patch('/projects/{project}/roadmap/{milestone}', [ProjectRoadmapController::class, 'update'])->name('projects.roadmap.update');
-
     Route::delete('/projects/{project}/roadmap/{milestone}', [ProjectRoadmapController::class, 'destroy'])->name('projects.roadmap.destroy');
 
     Route::get('/projects/{project}/activity', [ProjectActivityController::class, 'index'])->name('projects.activity');
     Route::post('/projects/{project}/activity/connect', [ProjectActivityController::class, 'connect'])->name('projects.activity.connect');
-
     Route::get('/projects/{project}/activity/branches', [ProjectActivityController::class, 'branches'])->name('projects.activity.branches');
     Route::get('/projects/{project}/activity/commits', [ProjectActivityController::class, 'commits'])->name('projects.activity.commits');
 
+    Route::get('/projects/{project}/files', [ProjectFilesController::class, 'index'])->name('projects.files');
+    Route::get('/projects/{project}/files/repo', [ProjectFilesController::class, 'repoIndex'])->name('projects.files.repo');
+    Route::get('/projects/{project}/files/repo/view', [ProjectFilesController::class, 'repoView'])->name('projects.files.repo.view');
+    Route::get('/projects/{project}/files/repo/download', [ProjectFilesController::class, 'repoDownload'])
+        ->name('projects.files.repo.download');
+    Route::post('/projects/{project}/files/upload', [ProjectFilesController::class, 'upload'])->name('projects.files.upload');
+    Route::get('/projects/{project}/files/{file}/download', [ProjectFilesController::class, 'download'])
+        ->whereNumber('file')
+        ->name('projects.files.download');
+    Route::delete('/projects/{project}/files/{file}', [ProjectFilesController::class, 'destroy'])
+        ->whereNumber('file')
+        ->name('projects.files.destroy');
 
-    Route::get('/projects/{project}/files', [ProjectSectionController::class, 'files'])
-        ->name('projects.files');
 
     Route::get('/projects/{project}/reports', [ProjectSectionController::class, 'reports'])
         ->name('projects.reports');
@@ -96,9 +92,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/projects/{project}/manage', [ProjectSectionController::class, 'manage'])
         ->name('projects.manage');
 
-    /*
-    | Members
-    */
     Route::get('/projects/{project}/members', [ProjectMembersController::class, 'index'])
         ->name('projects.members');
 
@@ -108,15 +101,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/projects/{project}/add-user', [ProjectInviteController::class, 'add'])
         ->name('projects.users.add');
 
-    /*
-    | Project Chat (REAL chat controller)
-    */
     Route::get('/projects/{project}/chat', [ProjectChatController::class, 'index'])
         ->name('projects.chat');
-
     Route::get('/projects/{project}/chat/feed', [ProjectChatController::class, 'feed'])
         ->name('projects.chat.feed');
-
     Route::post('/projects/{project}/chat', [ProjectChatController::class, 'store'])
         ->name('projects.chat.store');
 });
