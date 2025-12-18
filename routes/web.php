@@ -9,22 +9,16 @@ use App\Http\Controllers\ProjectInviteController;
 use App\Http\Controllers\ProjectMembersController;
 use App\Http\Controllers\ProjectSectionController;
 use App\Http\Controllers\ProjectChatController;
+use App\Http\Controllers\ProjectTasksController;
+use App\Http\Controllers\ProjectBoardController;
+use App\Http\Controllers\ProjectRoadmapController;
+use App\Http\Controllers\ProjectActivityController;
 
-/*
-|--------------------------------------------------------------------------
-| Public
-|--------------------------------------------------------------------------
-*/
 
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Profile (non-project)
-|--------------------------------------------------------------------------
-*/
 
 Route::middleware(['auth'])->group(function () {
 
@@ -41,12 +35,6 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
-/*
-|--------------------------------------------------------------------------
-| Projects
-|--------------------------------------------------------------------------
-*/
 
 Route::middleware(['auth'])->group(function () {
 
@@ -68,17 +56,36 @@ Route::middleware(['auth'])->group(function () {
     /*
     | Sidebar sections (empty placeholders for now)
     */
-    Route::get('/projects/{project}/tasks', [ProjectSectionController::class, 'tasks'])
-        ->name('projects.tasks');
 
-    Route::get('/projects/{project}/board', [ProjectSectionController::class, 'board'])
-        ->name('projects.board');
+    Route::get('/projects/{project}/tasks', [ProjectTasksController::class, 'index'])->name('projects.tasks');
 
-    Route::get('/projects/{project}/roadmap', [ProjectSectionController::class, 'roadmap'])
-        ->name('projects.roadmap');
+    Route::get('/projects/{project}/tasks/create', [ProjectTasksController::class, 'create'])->name('projects.tasks.create');
+    Route::post('/projects/{project}/tasks', [ProjectTasksController::class, 'store'])->name('projects.tasks.store');
 
-    Route::get('/projects/{project}/activity', [ProjectSectionController::class, 'activity'])
-        ->name('projects.activity');
+    Route::get('/projects/{project}/tasks/{task}/edit', [ProjectTasksController::class, 'edit'])->name('projects.tasks.edit');
+    Route::patch('/projects/{project}/tasks/{task}', [ProjectTasksController::class, 'update'])->name('projects.tasks.update');
+    Route::delete('/projects/{project}/tasks/{task}', [ProjectTasksController::class, 'destroy'])->name('projects.tasks.destroy');
+
+
+    Route::get('/projects/{project}/board', [ProjectBoardController::class, 'index'])->name('projects.board');
+    Route::post('/projects/{project}/board/move', [ProjectBoardController::class, 'move'])->name('projects.board.move');
+
+    Route::get('/projects/{project}/roadmap', [ProjectRoadmapController::class, 'index'])->name('projects.roadmap');
+
+    Route::get('/projects/{project}/roadmap/create', [ProjectRoadmapController::class, 'create'])->name('projects.roadmap.create');
+    Route::post('/projects/{project}/roadmap', [ProjectRoadmapController::class, 'store'])->name('projects.roadmap.store');
+
+    Route::get('/projects/{project}/roadmap/{milestone}/edit', [ProjectRoadmapController::class, 'edit'])->name('projects.roadmap.edit');
+    Route::patch('/projects/{project}/roadmap/{milestone}', [ProjectRoadmapController::class, 'update'])->name('projects.roadmap.update');
+
+    Route::delete('/projects/{project}/roadmap/{milestone}', [ProjectRoadmapController::class, 'destroy'])->name('projects.roadmap.destroy');
+
+    Route::get('/projects/{project}/activity', [ProjectActivityController::class, 'index'])->name('projects.activity');
+    Route::post('/projects/{project}/activity/connect', [ProjectActivityController::class, 'connect'])->name('projects.activity.connect');
+
+    Route::get('/projects/{project}/activity/branches', [ProjectActivityController::class, 'branches'])->name('projects.activity.branches');
+    Route::get('/projects/{project}/activity/commits', [ProjectActivityController::class, 'commits'])->name('projects.activity.commits');
+
 
     Route::get('/projects/{project}/files', [ProjectSectionController::class, 'files'])
         ->name('projects.files');
@@ -113,11 +120,5 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/projects/{project}/chat', [ProjectChatController::class, 'store'])
         ->name('projects.chat.store');
 });
-
-/*
-|--------------------------------------------------------------------------
-| Auth scaffolding
-|--------------------------------------------------------------------------
-*/
 
 require __DIR__.'/auth.php';

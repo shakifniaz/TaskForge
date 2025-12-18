@@ -10,7 +10,15 @@ class Project extends Model
         'owner_id',
         'name',
         'description',
+        'github_repo',
+        'github_default_branch',
+        'github_token',
     ];
+
+    protected $casts = [
+        'github_token' => 'encrypted',
+    ];
+
 
     public function owner()
     {
