@@ -14,6 +14,8 @@ use App\Http\Controllers\ProjectBoardController;
 use App\Http\Controllers\ProjectRoadmapController;
 use App\Http\Controllers\ProjectActivityController;
 use App\Http\Controllers\ProjectFilesController;
+use App\Http\Controllers\ProjectOverviewController;
+
 
 
 Route::get('/', function () {
@@ -45,8 +47,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/projects', [ProjectController::class, 'store'])
         ->name('projects.store');
 
-    Route::get('/projects/{project}', [ProjectSectionController::class, 'overview'])
-        ->name('projects.overview');
+    Route::get('/projects/{project}', [ProjectOverviewController::class, 'index'])
+    ->name('projects.overview');
+
 
 
     Route::get('/projects/{project}/tasks', [ProjectTasksController::class, 'index'])->name('projects.tasks');
@@ -91,9 +94,25 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/projects/{project}/manage', [ProjectSectionController::class, 'manage'])
         ->name('projects.manage');
+    Route::get('/projects/{project}/manage', [\App\Http\Controllers\ProjectManageController::class, 'index'])
+    ->name('projects.manage');
+
+    Route::patch('/projects/{project}/manage/rename', [\App\Http\Controllers\ProjectManageController::class, 'rename'])
+        ->name('projects.manage.rename');
+
+    Route::patch('/projects/{project}/manage/github', [\App\Http\Controllers\ProjectManageController::class, 'updateGithub'])
+        ->name('projects.manage.github');
+
+    Route::delete('/projects/{project}/manage/github', [\App\Http\Controllers\ProjectManageController::class, 'removeGithub'])
+        ->name('projects.manage.github.remove');
+
+    Route::delete('/projects/{project}', [\App\Http\Controllers\ProjectManageController::class, 'destroy'])
+        ->name('projects.destroy');
 
     Route::get('/projects/{project}/members', [ProjectMembersController::class, 'index'])
         ->name('projects.members');
+    Route::delete('/projects/{project}/members/{user}', [ProjectMembersController::class, 'remove'])
+    ->name('projects.members.remove');
 
     Route::get('/projects/{project}/search-users', [ProjectInviteController::class, 'search'])
         ->name('projects.users.search');
