@@ -26,7 +26,7 @@
                 {{-- Right actions --}}
                 <div class="flex items-center gap-3">
 
-                    {{-- Projects (same color as profile button in index) --}}
+                    {{-- Projects --}}
                     <a href="{{ route('projects.index') }}"
                        title="Projects"
                        class="h-14 w-14 inline-flex items-center justify-center rounded-2xl
