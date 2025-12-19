@@ -26,12 +26,12 @@
                 {{-- Right actions --}}
                 <div class="flex items-center gap-3">
 
-                    {{-- Projects --}}
+                    {{-- Projects (same color as profile button in index) --}}
                     <a href="{{ route('projects.index') }}"
                        title="Projects"
                        class="h-14 w-14 inline-flex items-center justify-center rounded-2xl
-                              border border-black/10 bg-white
-                              hover:-translate-y-0.5 hover:shadow-lg transition tf-theme-btn">
+                              text-white hover:-translate-y-0.5 hover:shadow-lg transition tf-primary-btn"
+                       style="background-color:#57A773;">
                         <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                   d="M3 7a2 2 0 012-2h4l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
@@ -83,7 +83,6 @@
 
                 $photoUrl = null;
                 if (!empty($u->profile_photo_path)) {
-                    // Supports "storage/..." style or direct path stored
                     $photoUrl = str_starts_with($u->profile_photo_path, 'http')
                         ? $u->profile_photo_path
                         : asset('storage/'.$u->profile_photo_path);
@@ -91,9 +90,12 @@
 
                 $fallbackAvatar = "https://ui-avatars.com/api/?name=".urlencode($u->name ?? 'User')."&background=57A773&color=ffffff&size=256";
                 $username = $u->username ? '@'.$u->username : null;
+
+                // Clean bio (fix leading whitespace / weird indentation)
+                $bio = $u->description ? trim($u->description) : null;
             @endphp
 
-            {{-- Profile viewer card (same premium gradient + shine effect) --}}
+            {{-- Profile viewer card --}}
             <div class="relative overflow-hidden rounded-3xl border border-black/10 shadow-sm bg-white tf-card">
 
                 {{-- Decorative gradient --}}
@@ -124,7 +126,7 @@
                             />
                         </div>
 
-                        {{-- Profile info (right side) --}}
+                        {{-- Profile info --}}
                         <div class="min-w-0 flex-1">
                             <div class="flex flex-col gap-2">
                                 <h2 class="text-2xl font-bold tf-h text-gray-900 truncate">
@@ -137,16 +139,15 @@
                                               style="background-color:#D1FAFF;">
                                             <span class="font-semibold" style="color:#157145;">{{ $username }}</span>
                                         </span>
-                                    @else
-                                        <span class="text-gray-600">No username set</span>
                                     @endif
 
                                     <span class="truncate">{{ $u->email }}</span>
                                 </div>
 
-                                @if($u->description)
-                                    <p class="mt-2 text-sm tf-sub text-gray-700 whitespace-pre-wrap">
-                                        {{ $u->description }}
+                                @if($bio)
+                                    {{-- No whitespace padding / no pre indentation --}}
+                                    <p class="mt-2 text-sm tf-sub text-gray-700 leading-relaxed">
+                                        {{ $bio }}
                                     </p>
                                 @else
                                     <p class="mt-2 text-sm tf-sub text-gray-600">
@@ -163,13 +164,6 @@
                                    style="background-color:#57A773;">
                                     Edit profile
                                 </a>
-
-                                <a href="{{ route('projects.index') }}"
-                                   class="px-8 py-3 rounded-2xl font-semibold
-                                          border border-black/10 bg-white
-                                          hover:-translate-y-0.5 hover:shadow-lg transition tf-theme-btn">
-                                    View projects
-                                </a>
                             </div>
                         </div>
 
@@ -177,72 +171,100 @@
                 </div>
             </div>
 
-            {{-- Quick summary cards (match style) --}}
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="rounded-3xl border border-black/10 bg-white p-6 shadow-sm tf-card">
-                    <div class="text-xs font-semibold uppercase tracking-wider tf-sub text-gray-600">Username</div>
-                    <div class="mt-2 text-lg font-bold tf-h text-gray-900">
-                        {{ $username ?: '—' }}
+            {{-- My Projects --}}
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold tf-h text-gray-900">My Projects</h2>
                     </div>
+
+                    <a href="{{ route('projects.index') }}"
+                       class="px-4 py-2 rounded-2xl font-semibold border border-black/10 bg-white
+                              hover:-translate-y-0.5 hover:shadow-lg transition tf-theme-btn">
+                        View all
+                    </a>
                 </div>
 
-                <div class="rounded-3xl border border-black/10 bg-white p-6 shadow-sm tf-card">
-                    <div class="text-xs font-semibold uppercase tracking-wider tf-sub text-gray-600">Email</div>
-                    <div class="mt-2 text-lg font-bold tf-h text-gray-900 truncate">
-                        {{ $u->email }}
-                    </div>
-                </div>
+                @php
+                    // Assumes your controller passes $projects (like your projects page),
+                    // OR you can fetch here if needed.
+                    // Best: pass $myProjects from controller, but fallback if not:
+                    $myProjects = $myProjects ?? ($projects ?? collect());
+                @endphp
 
-                <div class="rounded-3xl border border-black/10 bg-white p-6 shadow-sm tf-card">
-                    <div class="text-xs font-semibold uppercase tracking-wider tf-sub text-gray-600">Member since</div>
-                    <div class="mt-2 text-lg font-bold tf-h text-gray-900">
-                        {{ $u->created_at?->format('Y-m-d') ?? '—' }}
-                    </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    @forelse($myProjects as $project)
+                        <a href="{{ route('projects.overview', $project) }}"
+                           class="group rounded-3xl p-6 border border-black/10 bg-white tf-card
+                                  transition transform-gpu
+                                  hover:-translate-y-1 hover:shadow-xl">
+
+                            <div class="flex items-start justify-between gap-3">
+                                <h3 class="text-lg font-bold tf-h text-gray-900 truncate">
+                                    {{ $project->name }}
+                                </h3>
+
+                                <span class="shrink-0 h-9 w-9 rounded-2xl flex items-center justify-center border border-black/10 tf-chip"
+                                      style="background-color:#D1FAFF;">
+                                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="#157145" stroke-width="2.25">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M9 12h6m-6 4h6M7 20h10a2 2 0 002-2V6a2 2 0 00-2-2H9l-2 2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                    </svg>
+                                </span>
+                            </div>
+
+                            <div class="mt-5 flex justify-between items-center text-xs tf-sub text-gray-600">
+                                <span>{{ $project->created_at->format('Y-m-d') }}</span>
+                                <span class="font-semibold group-hover:underline" style="color:#157145;">
+                                    Open →
+                                </span>
+                            </div>
+                        </a>
+                    @empty
+                        <div class="rounded-3xl border border-black/10 bg-white tf-card p-6">
+                            <div class="tf-h text-gray-900 font-semibold">No owned projects yet.</div>
+                            <div class="mt-1 tf-sub text-sm text-gray-600">
+                                Create a new project from the Projects page.
+                            </div>
+                        </div>
+                    @endforelse
                 </div>
             </div>
 
         </div>
     </div>
 
-    {{-- Page-scoped Dark Mode (identical behavior to index.blade.php) --}}
+    {{-- Dark mode styling (same system as index.blade.php) --}}
     <style>
-        /* Dark theme uses class on <html> */
         html.dark body { background: #0b0f14; }
-
-        /* Override the inline background wrapper in dark mode */
         html.dark .min-h-screen { background-color: #0f141a !important; }
 
-        /* Typography */
         html.dark .tf-title,
         html.dark .tf-h { color: #e9eef5 !important; }
         html.dark .tf-subtitle,
         html.dark .tf-sub { color: rgba(233, 238, 245, 0.70) !important; }
 
-        /* Cards */
         html.dark .tf-card {
             background: #121a22 !important;
             border-color: rgba(255,255,255,0.08) !important;
         }
 
-        /* Buttons */
         html.dark .tf-theme-btn {
             background: #121a22 !important;
             border-color: rgba(255,255,255,0.10) !important;
             color: #e9eef5 !important;
         }
+
         html.dark .tf-logout-btn { background: #0b0f14 !important; }
 
-        /* Small chip icon background */
         html.dark .tf-chip {
             background: rgba(209, 250, 255, 0.10) !important;
             border-color: rgba(255,255,255,0.10) !important;
         }
 
-        /* Decorative gradient/shines toned down in dark */
         html.dark .tf-grad { opacity: 0.25 !important; }
         html.dark .tf-shine { opacity: 0.10 !important; }
 
-        /* Avatar border (make it look nice in dark) */
         html.dark img[alt="Profile photo"] { border-color: #121a22 !important; }
     </style>
 
@@ -264,13 +286,9 @@
                 }
             }
 
-            // initial
             const saved = localStorage.getItem('tf_theme');
-            if (saved === 'dark' || saved === 'light') {
-                apply(saved);
-            } else {
-                apply('light');
-            }
+            if (saved === 'dark' || saved === 'light') apply(saved);
+            else apply('light');
 
             toggle?.addEventListener('click', () => {
                 const isDark = document.documentElement.classList.contains('dark');

@@ -18,6 +18,7 @@ use App\Http\Controllers\ProjectOverviewController;
 use App\Http\Controllers\ProjectReportsController;
 use App\Http\Controllers\ProjectManageController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Models\Project;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,9 +49,16 @@ Route::middleware(['auth'])->group(function () {
     /*
     | Dashboard & Profile
     */
+    
     Route::get('/dashboard', function () {
-        return view('dashboard', ['user' => Auth::user()]);
-    })->name('dashboard');
+        $user = Auth::user();
+
+        $myProjects = Project::where('owner_id', $user->id)
+            ->latest()
+            ->get();
+
+        return view('dashboard', compact('user', 'myProjects'));
+    })->middleware('auth')->name('dashboard');
 
     Route::get('/edit-profile', function () {
         return view('profile.edit-tab', ['user' => Auth::user()]);
