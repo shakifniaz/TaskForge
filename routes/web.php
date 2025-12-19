@@ -15,16 +15,39 @@ use App\Http\Controllers\ProjectRoadmapController;
 use App\Http\Controllers\ProjectActivityController;
 use App\Http\Controllers\ProjectFilesController;
 use App\Http\Controllers\ProjectOverviewController;
+use App\Http\Controllers\ProjectReportsController;
+use App\Http\Controllers\ProjectManageController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 
-
+/*
+|--------------------------------------------------------------------------
+| Public / Guest Routes
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
+/**
+ * ✅ Username availability check (AJAX)
+ * Must be OUTSIDE auth middleware
+ */
+Route::get('/username/check', [RegisteredUserController::class, 'checkUsername'])
+    ->middleware('guest')
+    ->name('username.check');
+
+/*
+|--------------------------------------------------------------------------
+| Authenticated User Routes
+|--------------------------------------------------------------------------
+*/
 
 Route::middleware(['auth'])->group(function () {
 
+    /*
+    | Dashboard & Profile
+    */
     Route::get('/dashboard', function () {
         return view('dashboard', ['user' => Auth::user()]);
     })->name('dashboard');
@@ -33,14 +56,18 @@ Route::middleware(['auth'])->group(function () {
         return view('profile.edit-tab', ['user' => Auth::user()]);
     })->name('profile.edit.tab');
 
-    Route::get('/profile', fn () => redirect()->route('dashboard'))->name('profile.edit');
+    Route::get('/profile', fn () => redirect()->route('dashboard'))
+        ->name('profile.edit');
 
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
+    Route::patch('/profile', [ProfileController::class, 'update'])
+        ->name('profile.update');
 
-Route::middleware(['auth'])->group(function () {
+    Route::delete('/profile', [ProfileController::class, 'destroy'])
+        ->name('profile.destroy');
 
+    /*
+    | Projects
+    */
     Route::get('/projects', [ProjectController::class, 'index'])
         ->name('projects.index');
 
@@ -48,71 +75,132 @@ Route::middleware(['auth'])->group(function () {
         ->name('projects.store');
 
     Route::get('/projects/{project}', [ProjectOverviewController::class, 'index'])
-    ->name('projects.overview');
+        ->name('projects.overview');
 
+    /*
+    | Tasks
+    */
+    Route::get('/projects/{project}/tasks', [ProjectTasksController::class, 'index'])
+        ->name('projects.tasks');
 
+    Route::get('/projects/{project}/tasks/create', [ProjectTasksController::class, 'create'])
+        ->name('projects.tasks.create');
 
-    Route::get('/projects/{project}/tasks', [ProjectTasksController::class, 'index'])->name('projects.tasks');
-    Route::get('/projects/{project}/tasks/create', [ProjectTasksController::class, 'create'])->name('projects.tasks.create');
-    Route::post('/projects/{project}/tasks', [ProjectTasksController::class, 'store'])->name('projects.tasks.store');
-    Route::get('/projects/{project}/tasks/{task}/edit', [ProjectTasksController::class, 'edit'])->name('projects.tasks.edit');
-    Route::patch('/projects/{project}/tasks/{task}', [ProjectTasksController::class, 'update'])->name('projects.tasks.update');
-    Route::delete('/projects/{project}/tasks/{task}', [ProjectTasksController::class, 'destroy'])->name('projects.tasks.destroy');
+    Route::post('/projects/{project}/tasks', [ProjectTasksController::class, 'store'])
+        ->name('projects.tasks.store');
 
+    Route::get('/projects/{project}/tasks/{task}/edit', [ProjectTasksController::class, 'edit'])
+        ->name('projects.tasks.edit');
 
-    Route::get('/projects/{project}/board', [ProjectBoardController::class, 'index'])->name('projects.board');
-    Route::post('/projects/{project}/board/move', [ProjectBoardController::class, 'move'])->name('projects.board.move');
+    Route::patch('/projects/{project}/tasks/{task}', [ProjectTasksController::class, 'update'])
+        ->name('projects.tasks.update');
 
-    Route::get('/projects/{project}/roadmap', [ProjectRoadmapController::class, 'index'])->name('projects.roadmap');
-    Route::get('/projects/{project}/roadmap/create', [ProjectRoadmapController::class, 'create'])->name('projects.roadmap.create');
-    Route::post('/projects/{project}/roadmap', [ProjectRoadmapController::class, 'store'])->name('projects.roadmap.store');
-    Route::get('/projects/{project}/roadmap/{milestone}/edit', [ProjectRoadmapController::class, 'edit'])->name('projects.roadmap.edit');
-    Route::patch('/projects/{project}/roadmap/{milestone}', [ProjectRoadmapController::class, 'update'])->name('projects.roadmap.update');
-    Route::delete('/projects/{project}/roadmap/{milestone}', [ProjectRoadmapController::class, 'destroy'])->name('projects.roadmap.destroy');
+    Route::delete('/projects/{project}/tasks/{task}', [ProjectTasksController::class, 'destroy'])
+        ->name('projects.tasks.destroy');
 
-    Route::get('/projects/{project}/activity', [ProjectActivityController::class, 'index'])->name('projects.activity');
-    Route::post('/projects/{project}/activity/connect', [ProjectActivityController::class, 'connect'])->name('projects.activity.connect');
-    Route::get('/projects/{project}/activity/branches', [ProjectActivityController::class, 'branches'])->name('projects.activity.branches');
-    Route::get('/projects/{project}/activity/commits', [ProjectActivityController::class, 'commits'])->name('projects.activity.commits');
+    /*
+    | Board
+    */
+    Route::get('/projects/{project}/board', [ProjectBoardController::class, 'index'])
+        ->name('projects.board');
 
-    Route::get('/projects/{project}/files', [ProjectFilesController::class, 'index'])->name('projects.files');
-    Route::get('/projects/{project}/files/repo', [ProjectFilesController::class, 'repoIndex'])->name('projects.files.repo');
-    Route::get('/projects/{project}/files/repo/view', [ProjectFilesController::class, 'repoView'])->name('projects.files.repo.view');
+    Route::post('/projects/{project}/board/move', [ProjectBoardController::class, 'move'])
+        ->name('projects.board.move');
+
+    /*
+    | Roadmap / Milestones
+    */
+    Route::get('/projects/{project}/roadmap', [ProjectRoadmapController::class, 'index'])
+        ->name('projects.roadmap');
+
+    Route::get('/projects/{project}/roadmap/create', [ProjectRoadmapController::class, 'create'])
+        ->name('projects.roadmap.create');
+
+    Route::post('/projects/{project}/roadmap', [ProjectRoadmapController::class, 'store'])
+        ->name('projects.roadmap.store');
+
+    Route::get('/projects/{project}/roadmap/{milestone}/edit', [ProjectRoadmapController::class, 'edit'])
+        ->name('projects.roadmap.edit');
+
+    Route::patch('/projects/{project}/roadmap/{milestone}', [ProjectRoadmapController::class, 'update'])
+        ->name('projects.roadmap.update');
+
+    Route::delete('/projects/{project}/roadmap/{milestone}', [ProjectRoadmapController::class, 'destroy'])
+        ->name('projects.roadmap.destroy');
+
+    /*
+    | Activity (GitHub)
+    */
+    Route::get('/projects/{project}/activity', [ProjectActivityController::class, 'index'])
+        ->name('projects.activity');
+
+    Route::post('/projects/{project}/activity/connect', [ProjectActivityController::class, 'connect'])
+        ->name('projects.activity.connect');
+
+    Route::get('/projects/{project}/activity/branches', [ProjectActivityController::class, 'branches'])
+        ->name('projects.activity.branches');
+
+    Route::get('/projects/{project}/activity/commits', [ProjectActivityController::class, 'commits'])
+        ->name('projects.activity.commits');
+
+    /*
+    | Files
+    */
+    Route::get('/projects/{project}/files', [ProjectFilesController::class, 'index'])
+        ->name('projects.files');
+
+    Route::get('/projects/{project}/files/repo', [ProjectFilesController::class, 'repoIndex'])
+        ->name('projects.files.repo');
+
+    Route::get('/projects/{project}/files/repo/view', [ProjectFilesController::class, 'repoView'])
+        ->name('projects.files.repo.view');
+
     Route::get('/projects/{project}/files/repo/download', [ProjectFilesController::class, 'repoDownload'])
         ->name('projects.files.repo.download');
-    Route::post('/projects/{project}/files/upload', [ProjectFilesController::class, 'upload'])->name('projects.files.upload');
+
+    Route::post('/projects/{project}/files/upload', [ProjectFilesController::class, 'upload'])
+        ->name('projects.files.upload');
+
     Route::get('/projects/{project}/files/{file}/download', [ProjectFilesController::class, 'download'])
         ->whereNumber('file')
         ->name('projects.files.download');
+
     Route::delete('/projects/{project}/files/{file}', [ProjectFilesController::class, 'destroy'])
         ->whereNumber('file')
         ->name('projects.files.destroy');
 
+    /*
+    | Reports
+    */
+    Route::get('/projects/{project}/reports', [ProjectReportsController::class, 'index'])
+        ->name('projects.reports');
 
-    Route::get('/projects/{project}/reports', [\App\Http\Controllers\ProjectReportsController::class, 'index'])
-    ->name('projects.reports');
-
-    Route::get('/projects/{project}/manage', [ProjectSectionController::class, 'manage'])
+    /*
+    | Manage Project
+    */
+    Route::get('/projects/{project}/manage', [ProjectManageController::class, 'index'])
         ->name('projects.manage');
-    Route::get('/projects/{project}/manage', [\App\Http\Controllers\ProjectManageController::class, 'index'])
-    ->name('projects.manage');
 
-    Route::patch('/projects/{project}/manage/rename', [\App\Http\Controllers\ProjectManageController::class, 'rename'])
+    Route::patch('/projects/{project}/manage/rename', [ProjectManageController::class, 'rename'])
         ->name('projects.manage.rename');
 
-    Route::patch('/projects/{project}/manage/github', [\App\Http\Controllers\ProjectManageController::class, 'updateGithub'])
+    Route::patch('/projects/{project}/manage/github', [ProjectManageController::class, 'updateGithub'])
         ->name('projects.manage.github');
 
-    Route::delete('/projects/{project}/manage/github', [\App\Http\Controllers\ProjectManageController::class, 'removeGithub'])
+    Route::delete('/projects/{project}/manage/github', [ProjectManageController::class, 'removeGithub'])
         ->name('projects.manage.github.remove');
 
-    Route::delete('/projects/{project}', [\App\Http\Controllers\ProjectManageController::class, 'destroy'])
+    Route::delete('/projects/{project}', [ProjectManageController::class, 'destroy'])
         ->name('projects.destroy');
 
+    /*
+    | Members
+    */
     Route::get('/projects/{project}/members', [ProjectMembersController::class, 'index'])
         ->name('projects.members');
+
     Route::delete('/projects/{project}/members/{user}', [ProjectMembersController::class, 'remove'])
-    ->name('projects.members.remove');
+        ->name('projects.members.remove');
 
     Route::get('/projects/{project}/search-users', [ProjectInviteController::class, 'search'])
         ->name('projects.users.search');
@@ -120,10 +208,15 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/projects/{project}/add-user', [ProjectInviteController::class, 'add'])
         ->name('projects.users.add');
 
+    /*
+    | Chat
+    */
     Route::get('/projects/{project}/chat', [ProjectChatController::class, 'index'])
         ->name('projects.chat');
+
     Route::get('/projects/{project}/chat/feed', [ProjectChatController::class, 'feed'])
         ->name('projects.chat.feed');
+
     Route::post('/projects/{project}/chat', [ProjectChatController::class, 'store'])
         ->name('projects.chat.store');
 });
