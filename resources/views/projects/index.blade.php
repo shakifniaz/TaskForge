@@ -13,8 +13,9 @@
             <div class="p-6 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Create a new project</h3>
 
-                <form method="POST" action="{{ route('projects.store') }}" class="mt-4 flex gap-3">
+                <form method="POST" action="{{ route('projects.store') }}" class="mt-4 space-y-3">
                     @csrf
+
                     <input
                         type="text"
                         name="name"
@@ -23,7 +24,18 @@
                         value="{{ old('name') }}"
                         required
                     >
-                    <x-primary-button>Create</x-primary-button>
+
+                    <input
+                        type="text"
+                        name="github_repo"
+                        placeholder="GitHub repo (optional) — https://github.com/username/repo"
+                        class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+                        value="{{ old('github_repo') }}"
+                    >
+
+                    <div class="flex gap-3">
+                        <x-primary-button>Create</x-primary-button>
+                    </div>
                 </form>
 
                 @if ($errors->any())
@@ -52,7 +64,7 @@
                         </a>
                     @empty
                         <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                            You’re not in any projects yet. Create one above.
+                            You’re not in any projects yet. Create one!
                         </p>
                     @endforelse
                 </div>

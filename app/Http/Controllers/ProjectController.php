@@ -27,20 +27,29 @@ class ProjectController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'github_repo' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $user = Auth::user();
+        $github = null;
+        if (!empty($data['github_repo'])) {
+            $raw = trim($data['github_repo']);
+            $raw = rtrim($raw, '/');
+            $raw = preg_replace('#^https?://(www\.)?github\.com/#', '', $raw);
+            $raw = ltrim($raw, '/');
+            $github = 'https://github.com/' . $raw;
+        }
 
-        $project = Project::create([
-            'owner_id' => $user->id,
+        $project = \App\Models\Project::create([
             'name' => $data['name'],
+            'owner_id' => auth()->id(),
+            'github_repo' => $github,
         ]);
 
-        // creator becomes owner in the pivot
-        $project->users()->attach($user->id, ['role' => 'owner']);
+        $project->users()->attach(auth()->id(), ['role' => 'owner']);
 
-        return redirect()->route('projects.index')->with('status', 'project-created');
+        return redirect()->route('projects.overview', $project);
     }
+
 
     public function show(Project $project)
     {
@@ -54,4 +63,5 @@ class ProjectController extends Controller
             'members' => $members,
         ]);
     }
+
 }

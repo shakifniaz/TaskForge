@@ -89,8 +89,8 @@ Route::middleware(['auth'])->group(function () {
         ->name('projects.files.destroy');
 
 
-    Route::get('/projects/{project}/reports', [ProjectSectionController::class, 'reports'])
-        ->name('projects.reports');
+    Route::get('/projects/{project}/reports', [\App\Http\Controllers\ProjectReportsController::class, 'index'])
+    ->name('projects.reports');
 
     Route::get('/projects/{project}/manage', [ProjectSectionController::class, 'manage'])
         ->name('projects.manage');
