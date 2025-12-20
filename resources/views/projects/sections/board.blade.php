@@ -1,98 +1,101 @@
 <x-app-layout>
     <x-projects.layout :project="$project" active="board">
+
         <div class="space-y-6">
-            <div class="flex items-start justify-between gap-4">
+
+            {{-- ===== Header ===== --}}
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 class="text-2xl font-semibold text-gray-900">Board</h1>
-                    <p class="text-sm text-gray-500">Drag and drop tasks between columns</p>
+                    <h1 class="text-2xl font-bold tf-h">Board</h1>
+                    <p class="text-sm tf-sub">Drag and drop tasks between columns</p>
                 </div>
+
                 <a href="{{ route('projects.tasks', $project) }}"
-                   class="px-4 py-2 rounded-xl bg-gray-900 text-white font-semibold hover:bg-gray-800 transition">
+                   class="px-5 py-3 rounded-2xl text-white font-semibold
+                          hover:-translate-y-0.5 hover:shadow-lg transition tf-primary">
                     View Tasks →
                 </a>
             </div>
 
-            {{-- Summary row --}}
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
-                    <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Pending tasks</div>
-                    <div id="pendingCount" class="mt-2 text-3xl font-bold text-gray-900">{{ $pendingCount }}</div>
-                    <div class="mt-1 text-sm text-gray-500">To do + In progress</div>
-                </div>
+            {{-- ===== Summary ===== --}}
+            <section class="relative overflow-hidden rounded-3xl border border-black/10 bg-white shadow-sm tf-card tf-grad-card tf-hovercard">
+                <div class="absolute inset-0 pointer-events-none tf-grad"></div>
 
-                <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
-                    <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Completed tasks</div>
-                    <div id="completedCount" class="mt-2 text-3xl font-bold text-gray-900">{{ $completedCount }}</div>
-                    <div class="mt-1 text-sm text-gray-500">Done</div>
-                </div>
+                <div class="relative grid grid-cols-1 lg:grid-cols-3 gap-4 p-5">
+                    <div>
+                        <div class="text-xs tf-kicker">Pending</div>
+                        <div id="pendingCount" class="text-3xl font-extrabold tf-h">{{ $pendingCount }}</div>
+                        <div class="text-sm tf-sub">To do + In progress</div>
+                    </div>
 
-                <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
-                    <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Tasks per member</div>
-                    <div class="mt-3 space-y-2 max-h-24 overflow-auto pr-1">
+                    <div>
+                        <div class="text-xs tf-kicker">Completed</div>
+                        <div id="completedCount" class="text-3xl font-extrabold tf-h">{{ $completedCount }}</div>
+                        <div class="text-sm tf-sub">Done</div>
+                    </div>
+
+                    <div class="max-h-28 overflow-y-auto pr-1">
+                        <div class="text-xs tf-kicker mb-2">Tasks per member</div>
                         @forelse($tasksPerMember as $m)
-                            <div class="flex items-center justify-between text-sm">
-                                <div class="truncate text-gray-700">
+                            <div class="flex justify-between text-sm tf-sub">
+                                <span class="truncate">
                                     {{ $m['name'] }}
-                                    @if($m['username']) <span class="text-gray-400">(@{{ $m['username'] }})</span> @endif
-                                </div>
-                                <div class="font-semibold text-gray-900">{{ $m['count'] }}</div>
+                                </span>
+                                <span class="font-semibold tf-h">{{ $m['count'] }}</span>
                             </div>
                         @empty
-                            <div class="text-sm text-gray-500">No members.</div>
+                            <div class="text-sm tf-sub opacity-70">No members</div>
                         @endforelse
                     </div>
                 </div>
-            </div>
+            </section>
 
-            {{-- Kanban columns --}}
+            {{-- ===== Board ===== --}}
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
                 @php
-                    $colMeta = [
-                        'todo' => ['title' => 'Pending', 'subtitle' => 'To do'],
-                        'in_progress' => ['title' => 'In Progress', 'subtitle' => 'Working on it'],
-                        'completed' => ['title' => 'Completed', 'subtitle' => 'Done'],
+                    $cols = [
+                        'todo' => ['Pending','To do'],
+                        'in_progress' => ['In progress','Working on it'],
+                        'completed' => ['Completed','Done'],
                     ];
                 @endphp
 
-                @foreach(['todo','in_progress','completed'] as $col)
-                    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-                        <div class="p-4 border-b border-gray-200">
-                            <div class="flex items-center justify-between">
+                @foreach($cols as $key => [$title,$subtitle])
+                    <div class="relative overflow-hidden rounded-3xl border border-black/10 bg-white shadow-sm tf-card tf-grad-card">
+                        <div class="absolute inset-0 pointer-events-none tf-grad"></div>
+
+                        <div class="relative p-4 border-b border-black/10">
+                            <div class="flex justify-between">
                                 <div>
-                                    <div class="font-semibold text-gray-900">{{ $colMeta[$col]['title'] }}</div>
-                                    <div class="text-xs text-gray-500">{{ $colMeta[$col]['subtitle'] }}</div>
+                                    <div class="font-bold tf-h">{{ $title }}</div>
+                                    <div class="text-xs tf-sub">{{ $subtitle }}</div>
                                 </div>
-                                <div class="text-sm text-gray-500" data-col-count="{{ $col }}">
-                                    {{ $columns[$col]->count() }}
-                                </div>
+                                <span data-col-count="{{ $key }}" class="text-sm tf-sub">
+                                    {{ $columns[$key]->count() }}
+                                </span>
                             </div>
                         </div>
 
                         <div class="p-4">
-                            <div class="kanban-col space-y-3 min-h-[250px]"
-                                 data-column="{{ $col }}">
-                                @foreach($columns[$col] as $t)
-                                    <div class="kanban-card p-4 rounded-xl border border-gray-200 bg-gray-50 cursor-grab"
+                            <div class="kanban-col space-y-3 min-h-[260px]"
+                                 data-column="{{ $key }}">
+                                @foreach($columns[$key] as $t)
+                                    <div class="kanban-card tf-hoveritem"
                                          data-task-id="{{ $t->id }}">
-                                        <div class="font-semibold text-gray-900">{{ $t->title }}</div>
+                                        <div class="font-semibold tf-h">{{ $t->title }}</div>
 
-                                        <div class="mt-1 text-xs text-gray-500">
-                                            @if($t->assignee)
-                                                Assigned: {{ $t->assignee->name }}
-                                            @else
-                                                Unassigned
-                                            @endif
+                                        <div class="mt-1 text-xs tf-sub">
+                                            {{ $t->assignee?->name ?? 'Unassigned' }}
                                             @if($t->due_date)
-                                                · Due: {{ $t->due_date->format('Y-m-d') }}
+                                                · Due {{ $t->due_date->format('Y-m-d') }}
                                             @endif
                                         </div>
 
                                         @if($t->priority)
-                                            <div class="mt-2 text-xs">
-                                                <span class="inline-flex items-center px-2 py-1 rounded-lg border border-gray-200 bg-white text-gray-700">
-                                                    Priority: {{ ucfirst($t->priority) }}
-                                                </span>
-                                            </div>
+                                            <span class="inline-block mt-2 px-2 py-1 text-xs rounded-lg tf-pill">
+                                                Priority: {{ ucfirst($t->priority) }}
+                                            </span>
                                         @endif
                                     </div>
                                 @endforeach
@@ -102,119 +105,116 @@
                 @endforeach
             </div>
 
-            <p id="boardStatus" class="text-sm text-gray-500"></p>
+            <p id="boardStatus" class="text-sm tf-sub"></p>
         </div>
 
-        {{-- SortableJS (drag & drop) --}}
+        {{-- Sortable --}}
         <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 
         <script>
             const statusEl = document.getElementById('boardStatus');
-            const pendingCountEl = document.getElementById('pendingCount');
-            const completedCountEl = document.getElementById('completedCount');
 
-            function setStatus(msg) {
-                statusEl.textContent = msg || '';
+            function setStatus(t){ statusEl.textContent = t || '' }
+
+            function count(col){
+                return col.querySelectorAll('[data-task-id]').length;
             }
 
-            function updateCountsFromDOM() {
-                const todoCol = document.querySelector('.kanban-col[data-column="todo"]');
-                const progCol = document.querySelector('.kanban-col[data-column="in_progress"]');
-                const doneCol = document.querySelector('.kanban-col[data-column="completed"]');
+            function updateCounts(){
+                const t = document.querySelector('[data-column="todo"]');
+                const p = document.querySelector('[data-column="in_progress"]');
+                const d = document.querySelector('[data-column="completed"]');
 
-                const todoCount = todoCol ? todoCol.querySelectorAll('[data-task-id]').length : 0;
-                const progCount = progCol ? progCol.querySelectorAll('[data-task-id]').length : 0;
-                const doneCount = doneCol ? doneCol.querySelectorAll('[data-task-id]').length : 0;
+                document.querySelector('[data-col-count="todo"]').textContent = count(t);
+                document.querySelector('[data-col-count="in_progress"]').textContent = count(p);
+                document.querySelector('[data-col-count="completed"]').textContent = count(d);
 
-                const todoHdr = document.querySelector('[data-col-count="todo"]');
-                const progHdr = document.querySelector('[data-col-count="in_progress"]');
-                const doneHdr = document.querySelector('[data-col-count="completed"]');
-
-                if (todoHdr) todoHdr.textContent = todoCount;
-                if (progHdr) progHdr.textContent = progCount;
-                if (doneHdr) doneHdr.textContent = doneCount;
-
-                if (pendingCountEl) pendingCountEl.textContent = (todoCount + progCount);
-                if (completedCountEl) completedCountEl.textContent = doneCount;
+                document.getElementById('pendingCount').textContent = count(t)+count(p);
+                document.getElementById('completedCount').textContent = count(d);
             }
 
-            const saveQueue = new WeakMap();
-
-            function getOrderedIds(columnEl) {
-                return Array.from(columnEl.querySelectorAll('[data-task-id]'))
-                    .map(el => parseInt(el.dataset.taskId, 10))
-                    .filter(n => !Number.isNaN(n));
-            }
-
-            async function postMove(column, orderedIds) {
-                const res = await fetch(`{{ route('projects.board.move', $project) }}`, {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'X-Requested-With': 'XMLHttpRequest',
+            async function save(col){
+                await fetch(`{{ route('projects.board.move',$project) }}`,{
+                    method:'POST',
+                    headers:{
+                        'Content-Type':'application/json',
+                        'X-CSRF-TOKEN':'{{ csrf_token() }}'
                     },
-                    body: JSON.stringify({
-                        column,
-                        ordered_ids: orderedIds
+                    body:JSON.stringify({
+                        column:col.dataset.column,
+                        ordered_ids:[...col.children].map(e=>e.dataset.taskId)
                     })
                 });
-
-                if (!res.ok) {
-                    let serverMsg = '';
-                    try {
-                        const j = await res.json();
-                        serverMsg = j?.message ? ` — ${j.message}` : '';
-                    } catch (_) {}
-                    throw new Error(`HTTP ${res.status}${serverMsg}`);
-                }
-
-                return true;
             }
 
-            function saveColumnOrder(columnEl) {
-                const column = columnEl.dataset.column;
-                const orderedIds = getOrderedIds(columnEl);
-
-                const current = saveQueue.get(columnEl) || Promise.resolve();
-
-                const next = current
-                    .catch(() => {})
-                    .then(async () => {
+            document.querySelectorAll('.kanban-col').forEach(col=>{
+                new Sortable(col,{
+                    group:'kanban',
+                    animation:180,
+                    ghostClass:'opacity-50',
+                    draggable:'.kanban-card',
+                    onEnd:async e=>{
+                        updateCounts();
                         setStatus('Saving…');
-                        await postMove(column, orderedIds);
-                        setStatus('Saved.');
-                        setTimeout(() => setStatus(''), 1200);
-                    })
-                    .catch((err) => {
-                        setStatus(`Failed to save (${err.message}).`);
-                    });
-
-                saveQueue.set(columnEl, next);
-                return next;
-            }
-
-            // Initialize counts once on load
-            updateCountsFromDOM();
-
-            document.querySelectorAll('.kanban-col').forEach(col => {
-                new Sortable(col, {
-                    group: 'kanban',
-                    animation: 150,
-                    ghostClass: 'opacity-50',
-                    onEnd: async (evt) => {
-                        updateCountsFromDOM();
-
-                        await saveColumnOrder(evt.to);
-
-                        if (evt.from !== evt.to) {
-                            await saveColumnOrder(evt.from);
-                        }
+                        await save(e.to);
+                        if(e.from!==e.to) await save(e.from);
+                        setStatus('Saved');
+                        setTimeout(()=>setStatus(''),1200);
                     }
                 });
             });
+
+            updateCounts();
         </script>
+
+        {{-- ===== Styles ===== --}}
+        <style>
+            .tf-h{color:#0f172a}
+            .tf-sub{color:rgba(15,23,42,.7)}
+            .tf-kicker{color:rgba(15,23,42,.55)}
+
+            .tf-primary{background:#57A773}
+            .tf-primary:hover{background:#4d9a69}
+
+            .kanban-card{
+                cursor:grab;
+                padding:1rem;
+                border-radius:1rem;
+                border:1px solid rgba(0,0,0,.08);
+                background:#f8fafc;
+                transition:transform .15s, box-shadow .15s;
+            }
+            .kanban-card:active{cursor:grabbing}
+
+            .tf-hoveritem:hover{
+                transform:translateY(-2px);
+                box-shadow:0 12px 24px rgba(0,0,0,.1);
+            }
+
+            .tf-grad{
+                background:
+                    radial-gradient(900px 240px at 14% 18%, rgba(87,167,115,.18), transparent 58%),
+                    radial-gradient(760px 240px at 88% 14%, rgba(155,209,229,.22), transparent 58%);
+            }
+
+            /* ===== Dark Mode ===== */
+            html.dark .tf-h{color:#e9eef5}
+            html.dark .tf-sub,
+            html.dark .tf-kicker{color:rgba(233,238,245,.7)}
+
+            html.dark .tf-card{
+                background:#121a22;
+                border-color:rgba(255,255,255,.1);
+            }
+
+            html.dark .kanban-card{
+                background:#1a2430;
+                border-color:rgba(255,255,255,.12);
+                color:#e9eef5;
+            }
+
+            html.dark .tf-grad{opacity:.25}
+        </style>
+
     </x-projects.layout>
 </x-app-layout>
