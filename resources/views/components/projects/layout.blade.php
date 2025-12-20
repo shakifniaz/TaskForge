@@ -53,7 +53,7 @@
             $divider   = "my-4 border-t border-black/10 mx-4";
         @endphp
 
-        {{-- ✅ Scrollable sidebar content (sidebar scrolls; page doesn't) --}}
+        {{-- Scrollable sidebar content (sidebar scrolls; page doesn't) --}}
         <nav class="relative py-4 overflow-y-auto tf-sb-scroll"
              style="height: calc(100vh - 5rem);"
              :class="collapsed ? 'px-0' : ''"

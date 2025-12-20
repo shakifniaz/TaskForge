@@ -27,13 +27,11 @@ use App\Models\Project;
 */
 
 Route::get('/', function () {
-    return redirect()->route('login');
+    return auth()->check()
+        ? redirect()->route('projects.index')
+        : view('welcome');
 });
 
-/**
- * ✅ Username availability check (AJAX)
- * Must be OUTSIDE auth middleware
- */
 Route::get('/username/check', [RegisteredUserController::class, 'checkUsername'])
     ->middleware('guest')
     ->name('username.check');
