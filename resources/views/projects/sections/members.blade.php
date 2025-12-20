@@ -2,47 +2,21 @@
     <x-projects.layout :project="$project" active="members">
 
         <div class="space-y-6">
+
             {{-- Header --}}
             <div class="flex items-start justify-between gap-4">
                 <div>
-                    <h1 class="text-2xl font-semibold text-gray-900">Members</h1>
-                    <p class="text-sm text-gray-500">View members and manage invitations</p>
+                    <h1 class="text-2xl font-semibold tf-h">Members</h1>
+                    <p class="text-sm tf-sub">View members and manage invitations</p>
                 </div>
-
-                @if($isOwner)
-                    <span class="text-xs px-3 py-1 rounded-full bg-green-50 border border-green-200 text-green-800 font-semibold">
-                        You are the owner
-                    </span>
-                @endif
             </div>
 
-            {{-- Flash messages --}}
-            @if (session('status') === 'member-removed')
-                <div class="p-4 rounded-xl border border-green-200 bg-green-50 text-green-800 text-sm">
-                    Member removed successfully.
-                </div>
-            @endif
-
-            @if (session('status') === 'member-added')
-                <div class="p-4 rounded-xl border border-green-200 bg-green-50 text-green-800 text-sm">
-                    Member added successfully.
-                </div>
-            @endif
-
-            @if ($errors->any())
-                <div class="p-4 rounded-xl border border-red-200 bg-red-50 text-red-800 text-sm">
-                    {{ $errors->first() }}
-                </div>
-            @endif
-
-            {{-- Owner-only: Add new members --}}
+            {{-- Owner-only: Add members --}}
             @if($isOwner)
-                <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-                    <div class="flex items-center justify-between gap-4">
-                        <div>
-                            <h2 class="text-lg font-semibold text-gray-900">Add new members</h2>
-                            <p class="text-sm text-gray-500">Search by name or username, then add to this project.</p>
-                        </div>
+                <div class="tf-card tf-hovercard tf-gradient">
+                    <div>
+                        <h2 class="text-lg font-semibold tf-h">Add new members</h2>
+                        <p class="text-sm tf-sub">Search by name or username</p>
                     </div>
 
                     <div class="mt-4 space-y-3">
@@ -50,101 +24,70 @@
                             <input
                                 id="userSearchInput"
                                 type="text"
-                                class="w-full rounded-xl border-gray-300 focus:border-gray-400 focus:ring-gray-300"
-                                placeholder="Search users… (e.g. Shake or @shake)"
+                                class="tf-input w-full"
+                                placeholder="Type a name or @username…"
                                 autocomplete="off"
                             />
                             <button
                                 id="userSearchBtn"
                                 type="button"
-                                class="px-4 py-2 rounded-xl bg-gray-900 text-white font-semibold hover:bg-gray-800 transition">
+                                class="tf-btn tf-btn-primary">
                                 Search
                             </button>
                         </div>
 
-                        <p id="searchHint" class="text-xs text-gray-500">
-                            Tip: type at least 2 characters to search.
-                        </p>
-
-                        <div id="searchResults" class="mt-2 space-y-2"></div>
+                        {{-- Dynamic results (expands card) --}}
+                        <div id="searchResults" class="space-y-2"></div>
                     </div>
                 </div>
             @endif
 
-            {{-- Members cards --}}
-            <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+            {{-- Members --}}
+            <div class="tf-card tf-hovercard tf-gradient">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-lg font-semibold text-gray-900">Project members</h2>
-                    <span class="text-sm text-gray-500">{{ $members->count() }} members</span>
+                    <h2 class="text-lg font-semibold tf-h">Project members</h2>
+                    <span class="text-sm tf-sub">{{ $members->count() }} members</span>
                 </div>
 
                 <div class="mt-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                     @forelse($members as $m)
                         @php
                             $isProjectOwner = (int)$m->id === (int)$project->owner_id;
-                            $displayHandle = $m->username ? '@'.$m->username : null;
-                            $photoUrl = $m->profile_photo_path ? asset('storage/'.$m->profile_photo_path) : null;
+                            $handle = $m->username ? '@'.$m->username : null;
                         @endphp
 
-                        <div class="rounded-2xl border border-gray-200 bg-gray-50 p-5">
-                            <div class="flex items-start gap-4">
-                                {{-- Avatar --}}
-                                <div class="shrink-0">
-                                    @if($photoUrl)
-                                        <img
-                                            src="{{ $photoUrl }}"
-                                            alt="Profile photo"
-                                            class="h-12 w-12 rounded-xl object-cover border border-gray-200"
-                                        />
-                                    @else
-                                        <div class="h-12 w-12 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-700 font-semibold">
-                                            {{ strtoupper(mb_substr($m->name ?? 'U', 0, 1)) }}
-                                        </div>
-                                    @endif
-                                </div>
-
-                                {{-- Info --}}
-                                <div class="min-w-0 flex-1">
-                                    <div class="flex items-start justify-between gap-2">
-                                        <div class="min-w-0">
-                                            <div class="font-semibold text-gray-900 truncate">
-                                                {{ $m->name }}
-                                            </div>
-                                            <div class="text-sm text-gray-500 truncate">
-                                                {{ $displayHandle ?? '—' }}
-                                            </div>
+                        <div class="tf-card-inner tf-hoverrow">
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-2">
+                                        <div class="font-semibold tf-h truncate">
+                                            {{ $m->name }}
                                         </div>
 
                                         @if($isProjectOwner)
-                                            <span class="text-xs px-2 py-1 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 font-semibold">
-                                                Owner
-                                            </span>
+                                            <span class="tf-owner-badge">Owner</span>
                                         @endif
                                     </div>
 
-                                    <div class="mt-2 text-sm text-gray-600 truncate">
-                                        {{ $m->email }}
+                                    <div class="text-sm tf-sub truncate">
+                                        {{ $handle ?? '—' }}
                                     </div>
 
-                                    @if(!empty($m->description))
-                                        <div class="mt-2 text-sm text-gray-700">
-                                            {{ $m->description }}
-                                        </div>
-                                    @endif
+                                    <div class="mt-1 text-sm tf-sub truncate">
+                                        {{ $m->email }}
+                                    </div>
                                 </div>
                             </div>
 
-                            {{-- Owner-only actions --}}
                             @if($isOwner && !$isProjectOwner)
                                 <div class="mt-4 flex justify-end">
                                     <form method="POST"
                                           action="{{ route('projects.members.remove', [$project, $m]) }}"
-                                          onsubmit="return confirm('Remove this member from the project?');">
+                                          onsubmit="return confirm('Remove this member?');">
                                         @csrf
                                         @method('DELETE')
 
-                                        <button type="submit"
-                                                class="px-4 py-2 rounded-xl border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 text-sm font-semibold">
+                                        <button type="submit" class="tf-btn tf-btn-danger">
                                             Remove
                                         </button>
                                     </form>
@@ -152,93 +95,175 @@
                             @endif
                         </div>
                     @empty
-                        <p class="text-sm text-gray-500">No members found.</p>
+                        <p class="text-sm tf-sub">No members found.</p>
                     @endforelse
                 </div>
             </div>
+
         </div>
 
-        {{-- Owner-only JS for searching + adding users --}}
+        {{-- JS --}}
         @if($isOwner)
             <script>
                 const input = document.getElementById('userSearchInput');
                 const btn = document.getElementById('userSearchBtn');
-                const resultsEl = document.getElementById('searchResults');
+                const results = document.getElementById('searchResults');
 
-                function escapeHtml(str) {
-                    return String(str ?? '').replace(/[&<>"']/g, (m) => ({
-                        "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;"
+                function esc(s) {
+                    return String(s ?? '').replace(/[&<>"']/g, m => ({
+                        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
                     }[m]));
                 }
 
-                function renderResults(users) {
-                    resultsEl.innerHTML = '';
-
-                    if (!Array.isArray(users) || users.length === 0) {
-                        resultsEl.innerHTML = `<div class="text-sm text-gray-500">No users found.</div>`;
+                function render(users) {
+                    results.innerHTML = '';
+                    if (!users.length) {
+                        results.innerHTML = `<div class="text-sm tf-sub">No users found.</div>`;
                         return;
                     }
 
                     users.forEach(u => {
-                        const name = escapeHtml(u.name);
-                        const username = u.username ? `@${escapeHtml(u.username)}` : '';
-                        const email = escapeHtml(u.email ?? '');
-
                         const card = document.createElement('div');
-                        card.className = 'p-4 rounded-xl border border-gray-200 bg-white flex items-center justify-between gap-4';
+                        card.className = 'tf-search-row';
 
                         card.innerHTML = `
                             <div class="min-w-0">
-                                <div class="font-semibold text-gray-900 truncate">${name}</div>
-                                <div class="text-sm text-gray-500 truncate">${username} ${email ? '· ' + email : ''}</div>
+                                <div class="font-semibold tf-h truncate">${esc(u.name)}</div>
+                                <div class="text-sm tf-sub truncate">
+                                    ${u.username ? '@'+esc(u.username) : ''}
+                                </div>
                             </div>
+
                             <form method="POST" action="{{ route('projects.users.add', $project) }}">
                                 @csrf
                                 <input type="hidden" name="user_id" value="${u.id}">
-                                <button type="submit"
-                                    class="px-4 py-2 rounded-xl bg-gray-900 text-white font-semibold hover:bg-gray-800 transition text-sm">
+                                <button class="tf-btn tf-btn-primary text-sm">
                                     Add
                                 </button>
                             </form>
                         `;
 
-                        resultsEl.appendChild(card);
+                        results.appendChild(card);
                     });
                 }
 
-                async function searchUsers() {
-                    const q = (input.value || '').trim();
-                    resultsEl.innerHTML = '';
+                async function search() {
+                    const q = input.value.trim();
+                    results.innerHTML = '';
 
-                    if (q.length < 2) {
-                        resultsEl.innerHTML = `<div class="text-sm text-gray-500">Type at least 2 characters.</div>`;
-                        return;
-                    }
+                    if (q.length < 2) return;
 
                     try {
-                        const url = `{{ route('projects.users.search', $project) }}?q=${encodeURIComponent(q)}`;
-                        const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
-                        if (!res.ok) {
-                            resultsEl.innerHTML = `<div class="text-sm text-red-600">Search failed.</div>`;
-                            return;
-                        }
-
-                        const data = await res.json();
-                        renderResults(data);
-                    } catch (e) {
-                        resultsEl.innerHTML = `<div class="text-sm text-red-600">Search error.</div>`;
-                    }
+                        const res = await fetch(
+                            `{{ route('projects.users.search', $project) }}?q=${encodeURIComponent(q)}`
+                        );
+                        if (!res.ok) return;
+                        render(await res.json());
+                    } catch {}
                 }
 
-                btn.addEventListener('click', searchUsers);
-                input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        searchUsers();
-                    }
-                });
+                btn.onclick = search;
+                input.oninput = search;
             </script>
         @endif
+
+        {{-- Styles --}}
+        <style>
+            .tf-h { color:#0f172a; }
+            .tf-sub { color:rgba(15,23,42,.7); }
+
+            .tf-card {
+                background:#fff;
+                border:1px solid rgba(0,0,0,.1);
+                border-radius:1.5rem;
+                padding:1.5rem;
+                position:relative;
+            }
+
+            .tf-gradient::before {
+                content:'';
+                position:absolute;
+                inset:0;
+                background:linear-gradient(120deg, rgba(87,167,115,.15), transparent 60%);
+                opacity:0;
+                transition:.3s;
+                pointer-events:none;
+            }
+
+            .tf-hovercard:hover::before { opacity:1; }
+
+            .tf-hovercard {
+                transition:.25s;
+            }
+            .tf-hovercard:hover {
+                transform:translateY(-4px);
+                box-shadow:0 20px 40px rgba(0,0,0,.12);
+            }
+
+            .tf-card-inner {
+                padding:1.25rem;
+                border-radius:1rem;
+                background:rgba(0,0,0,.03);
+            }
+
+            .tf-hoverrow:hover {
+                background:rgba(87,167,115,.12);
+            }
+
+            .tf-input {
+                padding:.7rem .9rem;
+                border-radius:.75rem;
+                border:1px solid rgba(0,0,0,.15);
+            }
+
+            .tf-btn {
+                padding:.55rem 1.1rem;
+                border-radius:.75rem;
+                font-weight:600;
+                transition:.2s;
+            }
+
+            .tf-btn-primary {
+                background:#57A773;
+                color:#fff;
+            }
+            .tf-btn-primary:hover {
+                transform:translateY(-2px);
+                box-shadow:0 8px 20px rgba(87,167,115,.35);
+            }
+
+            .tf-btn-danger {
+                background:#fee2e2;
+                color:#b91c1c;
+                border:1px solid #fecaca;
+            }
+
+            .tf-owner-badge {
+                font-size:.65rem;
+                padding:.15rem .45rem;
+                border-radius:.5rem;
+                background:#dcfce7;
+                color:#166534;
+                font-weight:600;
+            }
+
+            .tf-search-row {
+                display:flex;
+                align-items:center;
+                justify-content:space-between;
+                gap:1rem;
+                padding:.75rem 1rem;
+                border-radius:.75rem;
+                background:rgba(0,0,0,.03);
+            }
+
+            html.dark .tf-h { color:#e9eef5; }
+            html.dark .tf-sub { color:rgba(233,238,245,.7); }
+            html.dark .tf-card { background:#121a22; border-color:rgba(255,255,255,.08); }
+            html.dark .tf-card-inner,
+            html.dark .tf-search-row { background:rgba(255,255,255,.05); }
+            html.dark .tf-input { background:#0f141a; color:#fff; border-color:rgba(255,255,255,.2); }
+        </style>
 
     </x-projects.layout>
 </x-app-layout>
