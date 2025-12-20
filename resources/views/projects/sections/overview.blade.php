@@ -327,44 +327,86 @@
 
         {{-- Page styles (NO theme toggle IDs here; relies on html.dark from layout) --}}
         <style>
-            /* Hover animation for every main card */
-            .tf-hovercard {
-                transition: transform 220ms ease, box-shadow 220ms ease;
-                transform: translateY(0);
-            }
-            .tf-hovercard:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 18px 40px rgba(0,0,0,0.10);
-            }
-
-            /* Hover for inner task items */
-            .tf-hoveritem {
-                transition: transform 200ms ease, box-shadow 200ms ease;
-            }
-            .tf-hoveritem:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 12px 24px rgba(0,0,0,0.10);
-            }
-
             .tf-h { color: #0f172a; }
             .tf-sub { color: rgba(15, 23, 42, 0.72); }
             .tf-kicker { color: rgba(15, 23, 42, 0.55); }
             .tf-link { color: #1d4ed8; }
             .tf-copy { color: #157145; }
 
+            .tf-card {
+                position: relative;
+                overflow: hidden;
+            }
+
+            section.tf-grad-card.tf-hovercard {
+                transform: none !important;
+                box-shadow: none !important;
+            }
+
+            section.tf-grad-card.tf-hovercard:hover {
+                transform: none !important;
+                box-shadow: none !important;
+            }
+
+            .tf-card:not(.tf-grad-card)::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(
+                    120deg,
+                    rgba(87,167,115,0.18),
+                    rgba(155,209,229,0.14),
+                    transparent 70%
+                );
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                pointer-events: none;
+            }
+
+            .tf-card:not(.tf-grad-card):hover::before {
+                opacity: 1;
+            }
+
+            .tf-grad-card::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background:
+                    radial-gradient(900px 220px at 12% 18%, rgba(87,167,115,0.18), transparent 60%),
+                    radial-gradient(840px 260px at 92% 12%, rgba(155,209,229,0.22), transparent 62%);
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                pointer-events: none;
+            }
+
+            .tf-grad-card:hover::before {
+                opacity: 1;
+            }
+
+            .tf-hoveritem {
+                transition: transform 200ms ease, box-shadow 200ms ease;
+            }
+
+            .tf-hoveritem:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 12px 24px rgba(0,0,0,0.10);
+            }
+
             .tf-badge { background: rgba(155,209,229,0.18); color: rgba(15,23,42,0.85); }
             .tf-badge-ok { background: rgba(87,167,115,0.16); color: #0b3d2a; }
 
-            .tf-btn-mini { line-height: 1; }
+            .tf-pill { border: 1px solid rgba(0,0,0,0.08); }
+            .tf-pill-danger { background: rgba(239,68,68,0.12); color: rgba(127,29,29,0.95); }
+            .tf-pill-neutral { background: rgba(106,142,174,0.12); color: rgba(15,23,42,0.75); }
 
             .tf-bar-bg { background: rgba(15, 23, 42, 0.08); }
             .tf-bar-todo { background: rgba(106,142,174,0.65); }
             .tf-bar-prog { background: rgba(21,113,69,0.85); }
             .tf-bar-done { background: rgba(15, 23, 42, 0.88); }
 
-            .tf-pill { border: 1px solid rgba(0,0,0,0.08); }
-            .tf-pill-danger { background: rgba(239,68,68,0.12); color: rgba(127,29,29,0.95); }
-            .tf-pill-neutral { background: rgba(106,142,174,0.12); color: rgba(15,23,42,0.75); }
+            .tf-btn-mini {
+                line-height: 1;
+            }
 
             html.dark .tf-h { color: #e9eef5 !important; }
             html.dark .tf-sub { color: rgba(233,238,245,0.74) !important; }
@@ -377,8 +419,25 @@
                 border-color: rgba(255,255,255,0.10) !important;
             }
 
-            html.dark .tf-badge { background: rgba(155,209,229,0.12) !important; color: rgba(233,238,245,0.82) !important; }
-            html.dark .tf-badge-ok { background: rgba(87,167,115,0.14) !important; color: rgba(233,238,245,0.90) !important; }
+            html.dark .tf-btn-mini {
+                background: #0f141a !important;
+                color: #e9eef5 !important;
+                border-color: rgba(255,255,255,0.15) !important;
+            }
+
+            html.dark .tf-btn-mini:hover {
+                background: #1a2430 !important;
+            }
+
+            html.dark .tf-badge {
+                background: rgba(155,209,229,0.12) !important;
+                color: rgba(233,238,245,0.82) !important;
+            }
+
+            html.dark .tf-badge-ok {
+                background: rgba(87,167,115,0.14) !important;
+                color: rgba(233,238,245,0.90) !important;
+            }
 
             html.dark .tf-bar-bg { background: rgba(233,238,245,0.10) !important; }
             html.dark .tf-bar-todo { background: rgba(155,209,229,0.55) !important; }
@@ -386,8 +445,14 @@
             html.dark .tf-bar-done { background: rgba(233,238,245,0.88) !important; }
 
             html.dark .tf-pill { border-color: rgba(255,255,255,0.10) !important; }
-            html.dark .tf-pill-danger { background: rgba(239,68,68,0.14) !important; color: rgba(233,238,245,0.90) !important; }
-            html.dark .tf-pill-neutral { background: rgba(155,209,229,0.12) !important; color: rgba(233,238,245,0.80) !important; }
+            html.dark .tf-pill-danger {
+                background: rgba(239,68,68,0.14) !important;
+                color: rgba(233,238,245,0.90) !important;
+            }
+            html.dark .tf-pill-neutral {
+                background: rgba(155,209,229,0.12) !important;
+                color: rgba(233,238,245,0.80) !important;
+            }
 
             html.dark .tf-grad { opacity: 0.22 !important; }
             html.dark .tf-shine { opacity: 0.08 !important; }
