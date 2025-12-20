@@ -1,7 +1,24 @@
 <x-app-layout>
     <x-projects.layout :project="$project" active="manage">
 
-        <div class="tf-manage space-y-6">
+        @if(auth()->id() !== $project->owner_id)
+
+            {{-- ===== Non-owner message ===== --}}
+            <div class="min-h-[40vh] flex items-center justify-center">
+                <div class="text-center tf-card max-w-md">
+                    <h1 class="text-xl font-semibold tf-h">
+                        Restricted Access
+                    </h1>
+                    <p class="mt-2 text-sm tf-sub">
+                        Only owners have access to this tab.
+                    </p>
+                </div>
+            </div>
+
+        @else
+
+        {{-- ================= OWNER VIEW ================= --}}
+        <div class="space-y-6">
 
             {{-- Header --}}
             <div>
@@ -105,13 +122,16 @@
             </div>
 
         </div>
+        {{-- ============== END OWNER VIEW ============== --}}
 
-        {{-- ===== Scoped Styles (NO NAVBAR IMPACT) ===== --}}
+        @endif
+
+        {{-- ===== Styles (LOCAL ONLY – safe) ===== --}}
         <style>
-            .tf-manage .tf-h { color:#0f172a; }
-            .tf-manage .tf-sub { color:rgba(15,23,42,.7); }
+            .tf-h { color:#0f172a; }
+            .tf-sub { color:rgba(15,23,42,.7); }
 
-            .tf-manage .tf-input {
+            .tf-input {
                 width:100%;
                 padding:.65rem .9rem;
                 border-radius:.75rem;
@@ -119,13 +139,13 @@
                 background:#fff;
             }
 
-            html.dark .tf-manage .tf-input {
+            html.dark .tf-input {
                 background:#0f141a;
                 color:#e9eef5;
                 border-color:rgba(255,255,255,.2);
             }
 
-            .tf-manage .tf-card {
+            .tf-card {
                 background:#fff;
                 border:1px solid rgba(0,0,0,.1);
                 border-radius:1.5rem;
@@ -134,7 +154,7 @@
                 overflow:hidden;
             }
 
-            .tf-manage .tf-gradient::before {
+            .tf-gradient::before {
                 content:'';
                 position:absolute;
                 inset:0;
@@ -144,18 +164,18 @@
                 pointer-events:none;
             }
 
-            .tf-manage .tf-hovercard:hover::before { opacity:1; }
+            .tf-hovercard:hover::before { opacity:1; }
 
-            .tf-manage .tf-hovercard {
+            .tf-hovercard {
                 transition:transform .25s, box-shadow .25s;
             }
 
-            .tf-manage .tf-hovercard:hover {
+            .tf-hovercard:hover {
                 transform:translateY(-4px);
                 box-shadow:0 18px 35px rgba(0,0,0,.15);
             }
 
-            .tf-manage .tf-primary-btn {
+            .tf-primary-btn {
                 padding:.65rem 1.25rem;
                 border-radius:.75rem;
                 background:#57A773;
@@ -164,12 +184,12 @@
                 transition:.2s;
             }
 
-            .tf-manage .tf-primary-btn:hover {
+            .tf-primary-btn:hover {
                 background:#4d9a69;
                 transform:translateY(-1px);
             }
 
-            .tf-manage .tf-danger-btn {
+            .tf-danger-btn {
                 padding:.65rem 1.25rem;
                 border-radius:.75rem;
                 background:#dc2626;
@@ -178,12 +198,12 @@
                 transition:.2s;
             }
 
-            .tf-manage .tf-danger-btn:hover {
+            .tf-danger-btn:hover {
                 background:#b91c1c;
                 transform:translateY(-1px);
             }
 
-            .tf-manage .tf-danger-btn-sm {
+            .tf-danger-btn-sm {
                 padding:.35rem .75rem;
                 border-radius:.6rem;
                 background:#fee2e2;
@@ -194,14 +214,14 @@
                 transition:.2s;
             }
 
-            .tf-manage .tf-danger-btn-sm:hover {
+            .tf-danger-btn-sm:hover {
                 background:#fecaca;
             }
 
-            html.dark .tf-manage .tf-h { color:#e9eef5; }
-            html.dark .tf-manage .tf-sub { color:rgba(233,238,245,.7); }
+            html.dark .tf-h { color:#e9eef5; }
+            html.dark .tf-sub { color:rgba(233,238,245,.7); }
 
-            html.dark .tf-manage .tf-card {
+            html.dark .tf-card {
                 background:#121a22;
                 border-color:rgba(255,255,255,.1);
             }

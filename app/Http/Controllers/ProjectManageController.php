@@ -10,32 +10,33 @@ class ProjectManageController extends Controller
 {
     private function ensureOwner(Project $project): void
     {
-        abort_unless((int)$project->owner_id === (int)Auth::id(), 403);
+        abort_unless((int) $project->owner_id === (int) Auth::id(), 403);
     }
 
     private function normalizeGithubRepo(string $input): string
     {
         $raw = trim($input);
-
-        // Remove trailing slash
         $raw = rtrim($raw, '/');
-
-        // If full URL -> strip domain
         $raw = preg_replace('#^https?://(www\.)?github\.com/#', '', $raw);
-
-        // Ensure it's "username/repo"
         $raw = ltrim($raw, '/');
 
         return 'https://github.com/' . $raw;
     }
 
+    /**
+     * SHOW MANAGE PAGE
+     * ✅ No abort here
+     */
     public function index(Project $project)
     {
-        $this->ensureOwner($project);
+        $isOwner = (int) $project->owner_id === (int) Auth::id();
 
-        return view('projects.sections.manage', compact('project'));
+        return view('projects.sections.manage', compact('project', 'isOwner'));
     }
 
+    /**
+     * RENAME PROJECT
+     */
     public function rename(Project $project, Request $request)
     {
         $this->ensureOwner($project);
@@ -51,6 +52,9 @@ class ProjectManageController extends Controller
         return back()->with('status', 'project-renamed');
     }
 
+    /**
+     * UPDATE GITHUB REPO
+     */
     public function updateGithub(Project $project, Request $request)
     {
         $this->ensureOwner($project);
@@ -66,24 +70,32 @@ class ProjectManageController extends Controller
         return back()->with('status', 'github-updated');
     }
 
+    /**
+     * REMOVE GITHUB REPO
+     */
     public function removeGithub(Project $project)
     {
         $this->ensureOwner($project);
 
         $project->update([
             'github_repo' => null,
-            'github_token' => null, // optional: only if you use token
+            'github_token' => null,
         ]);
 
         return back()->with('status', 'github-removed');
     }
 
+    /**
+     * DELETE PROJECT
+     */
     public function destroy(Project $project)
     {
         $this->ensureOwner($project);
 
         $project->delete();
 
-        return redirect()->route('projects.index')->with('status', 'project-deleted');
+        return redirect()
+            ->route('projects.index')
+            ->with('status', 'project-deleted');
     }
 }
