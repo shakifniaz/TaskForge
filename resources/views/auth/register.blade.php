@@ -1,186 +1,228 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
-        @csrf
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <title>Register · TaskForge</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <!-- Username -->
-        <div>
-            <x-input-label for="username" :value="__('Username')" />
-            <x-text-input
-                id="username"
-                class="block mt-1 w-full"
-                type="text"
-                name="username"
-                :value="old('username')"
-                required
-                autofocus
-                autocomplete="username"
-            />
-            <x-input-error :messages="$errors->get('username')" class="mt-2" />
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
 
-            {{-- Real-time availability status --}}
-            <p id="usernameHelp" class="mt-2 text-xs text-gray-500"></p>
+<body class="min-h-screen font-sans antialiased overflow-hidden">
+
+{{-- ===== Static Background ===== --}}
+<div class="fixed inset-0 -z-10 tf-bg"></div>
+
+{{-- ===== Dark Mode Toggle ===== --}}
+<button id="themeToggle"
+        class="fixed top-6 right-6 z-20 h-12 w-12 rounded-2xl
+               border transition flex items-center justify-center">
+
+    {{-- Moon (light mode) --}}
+    <svg id="iconMoon" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z"/>
+    </svg>
+
+    {{-- Sun (dark mode) --}}
+    <svg id="iconSun" class="h-6 w-6 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364-1.414 1.414M7.05 16.95l-1.414 1.414m12.728 0-1.414-1.414M7.05 7.05 5.636 5.636"/>
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 8a4 4 0 100 8 4 4 0 000-8z"/>
+    </svg>
+</button>
+
+{{-- ===== Main Layout ===== --}}
+<div class="min-h-screen flex items-center justify-center px-8">
+    <div class="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+        {{-- ===== LEFT: Branding ===== --}}
+        <div class="flex items-center gap-10">
+            <div class="tf-logo-glow">
+                <img src="{{ asset('assets/logos/TaskForgeGreen.svg') }}"
+                     alt="TaskForge"
+                     class="h-44 w-44 shrink-0">
+            </div>
+
+            <div>
+                <h1 class="text-[4.5rem] leading-tight font-extrabold tracking-tight tf-title">
+                    TaskForge
+                </h1>
+                <p class="mt-3 text-xl tf-sub">
+                    Forge clarity. Build momentum.
+                </p>
+            </div>
         </div>
 
-        <!-- First Name -->
-        <div class="mt-4">
-            <x-input-label for="first_name" :value="__('First Name')" />
-            <x-text-input
-                id="first_name"
-                class="block mt-1 w-full"
-                type="text"
-                name="first_name"
-                :value="old('first_name')"
-                required
-                autocomplete="given-name"
-            />
-            <x-input-error :messages="$errors->get('first_name')" class="mt-2" />
+        {{-- ===== RIGHT: Register Card ===== --}}
+        <div class="flex justify-center lg:justify-end">
+            <div class="w-full max-w-md tf-card">
+
+                <h2 class="text-2xl font-bold tf-h">Create your account</h2>
+                <p class="mt-1 text-sm tf-sub">Start building with TaskForge</p>
+
+                <form method="POST" action="{{ route('register') }}" class="mt-6 space-y-4">
+                    @csrf
+
+                    {{-- Name row --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-sm font-semibold tf-h">First name</label>
+                            <input type="text" name="first_name" required class="mt-1 tf-input">
+                        </div>
+                        <div>
+                            <label class="text-sm font-semibold tf-h">Last name</label>
+                            <input type="text" name="last_name" required class="mt-1 tf-input">
+                        </div>
+                    </div>
+
+                    {{-- Email --}}
+                    <div>
+                        <label class="text-sm font-semibold tf-h">Email</label>
+                        <input type="email" name="email" required class="mt-1 tf-input">
+                    </div>
+
+                    {{-- Password --}}
+                    <div>
+                        <label class="text-sm font-semibold tf-h">Password</label>
+                        <input id="password" type="password" name="password" required class="mt-1 tf-input">
+                        <div class="mt-2 h-2 rounded-full bg-black/10 overflow-hidden">
+                            <div id="strengthBar" class="h-2 w-0 transition-all"></div>
+                        </div>
+                        <p id="strengthText" class="mt-1 text-xs tf-sub"></p>
+                    </div>
+
+                    {{-- Confirm --}}
+                    <div>
+                        <label class="text-sm font-semibold tf-h">Confirm password</label>
+                        <input type="password" name="password_confirmation" required class="mt-1 tf-input">
+                    </div>
+
+                    <button type="submit" class="w-full tf-primary-btn mt-2">
+                        Create account
+                    </button>
+                </form>
+
+                <p class="mt-6 text-sm tf-sub text-center">
+                    Already have an account?
+                    <a href="{{ route('login') }}" class="font-semibold" style="color:#57A773;">
+                        Sign in
+                    </a>
+                </p>
+            </div>
         </div>
+    </div>
+</div>
 
-        <!-- Last Name -->
-        <div class="mt-4">
-            <x-input-label for="last_name" :value="__('Last Name')" />
-            <x-text-input
-                id="last_name"
-                class="block mt-1 w-full"
-                type="text"
-                name="last_name"
-                :value="old('last_name')"
-                required
-                autocomplete="family-name"
-            />
-            <x-input-error :messages="$errors->get('last_name')" class="mt-2" />
-        </div>
+{{-- ===== Styles ===== --}}
+<style>
+.tf-bg {
+    background:
+        radial-gradient(900px 400px at 10% 20%, rgba(87,167,115,.35), transparent 60%),
+        radial-gradient(800px 400px at 90% 25%, rgba(155,209,229,.35), transparent 60%),
+        radial-gradient(900px 500px at 50% 120%, rgba(106,142,174,.30), transparent 65%);
+}
 
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input
-                id="email"
-                class="block mt-1 w-full"
-                type="email"
-                name="email"
-                :value="old('email')"
-                required
-                autocomplete="email"
-            />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+.tf-logo-glow {
+    filter: drop-shadow(0 0 28px rgba(87,167,115,.75));
+    animation: logoGlow 3s ease-in-out infinite alternate;
+}
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+@keyframes logoGlow {
+    from { filter: drop-shadow(0 0 18px rgba(87,167,115,.45)); }
+    to   { filter: drop-shadow(0 0 36px rgba(87,167,115,.9)); }
+}
 
-            <x-text-input
-                id="password"
-                class="block mt-1 w-full"
-                type="password"
-                name="password"
-                required
-                autocomplete="new-password"
-            />
+.tf-card {
+    background: linear-gradient(135deg, rgba(255,255,255,.9), rgba(255,255,255,.7));
+    backdrop-filter: blur(16px);
+    border-radius: 1.75rem;
+    padding: 2.25rem;
+    border: 1px solid rgba(0,0,0,.1);
+}
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+.tf-title { color:#157145; }
+.tf-h { color:#0f172a; }
+.tf-sub { color:rgba(15,23,42,.72); }
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+.tf-input {
+    width:100%;
+    padding:.75rem .9rem;
+    border-radius:.75rem;
+    border:1px solid rgba(0,0,0,.15);
+}
 
-            <x-text-input
-                id="password_confirmation"
-                class="block mt-1 w-full"
-                type="password"
-                name="password_confirmation"
-                required
-                autocomplete="new-password"
-            />
+.tf-primary-btn {
+    background:#57A773;
+    color:#fff;
+    padding:.8rem;
+    border-radius:.75rem;
+    font-weight:600;
+}
 
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
+#strengthBar { background:#dc2626; }
 
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
-               href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
+html.dark body { background:#0b0f14; }
 
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
-        </div>
-    </form>
+html.dark .tf-card {
+    background: linear-gradient(135deg, rgba(18,26,34,.95), rgba(18,26,34,.75));
+    border-color: rgba(255,255,255,.12);
+}
 
-    {{-- Username availability AJAX --}}
-    <script>
-        const usernameEl = document.getElementById('username');
-        const helpEl = document.getElementById('usernameHelp');
+html.dark .tf-h,
+html.dark .tf-sub { color:#e9eef5; }
 
-        let t = null;
-        let lastValue = '';
-        let lastRequestId = 0;
+html.dark #themeToggle {
+    background:#121a22;
+    color:#e9eef5;
+}
+</style>
 
-        function setHelp(text, type = 'neutral') {
-            if (!helpEl) return;
-            helpEl.textContent = text || '';
-            helpEl.className = 'mt-2 text-xs ' + (
-                type === 'ok' ? 'text-green-600' :
-                type === 'bad' ? 'text-red-600' :
-                'text-gray-500'
-            );
-        }
+{{-- ===== Scripts ===== --}}
+<script>
+const toggle = document.getElementById('themeToggle');
+const sun = document.getElementById('iconSun');
+const moon = document.getElementById('iconMoon');
 
-        async function checkUsername(value) {
-            const requestId = ++lastRequestId;
-            const url = `{{ route('username.check') }}?username=${encodeURIComponent(value)}`;
+function applyTheme(isDark) {
+    document.documentElement.classList.toggle('dark', isDark);
+    sun.classList.toggle('hidden', !isDark);
+    moon.classList.toggle('hidden', isDark);
+    localStorage.setItem('tf_theme', isDark ? 'dark' : 'light');
+}
+applyTheme(localStorage.getItem('tf_theme') === 'dark');
+toggle.addEventListener('click', () => applyTheme(!document.documentElement.classList.contains('dark')));
 
-            try {
-                const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+// Password strength
+const pwd = document.getElementById('password');
+const bar = document.getElementById('strengthBar');
+const text = document.getElementById('strengthText');
 
-                // ✅ show error if route not working
-                if (!res.ok) {
-                    setHelp('Could not check username (route error).', 'bad');
-                    return;
-                }
+pwd.addEventListener('input', () => {
+    const v = pwd.value;
+    let score = 0;
+    if (v.length >= 8) score++;
+    if (/[A-Z]/.test(v)) score++;
+    if (/[0-9]/.test(v)) score++;
+    if (/[^A-Za-z0-9]/.test(v)) score++;
 
-                const data = await res.json();
+    const pct = [0,25,50,75,100][score];
+    bar.style.width = pct + '%';
+    bar.style.background =
+        score < 2 ? '#dc2626' :
+        score < 3 ? '#f59e0b' :
+        score < 4 ? '#84cc16' :
+        '#16a34a';
 
-                // ignore stale response
-                if (requestId !== lastRequestId) return;
+    text.textContent =
+        score < 2 ? 'Weak' :
+        score < 3 ? 'Fair' :
+        score < 4 ? 'Good' :
+        'Strong';
+});
+</script>
 
-                if (data.available) {
-                    setHelp('Username is available ✅', 'ok');
-                } else {
-                    if (data.reason === 'taken') setHelp('Username is already taken ❌', 'bad');
-                    else setHelp('Username must be 3–50 chars, letters/numbers/_/- only.', 'bad');
-                }
-            } catch (e) {
-                setHelp('Could not check username (network error).', 'bad');
-            }
-        }
-
-        usernameEl?.addEventListener('input', () => {
-            const value = usernameEl.value.trim();
-
-            if (!value) {
-                setHelp('');
-                lastValue = '';
-                return;
-            }
-
-            if (value.length < 3) {
-                setHelp('Username must be at least 3 characters.', 'bad');
-                return;
-            }
-
-            clearTimeout(t);
-            t = setTimeout(() => {
-                if (value === lastValue) return;
-                lastValue = value;
-
-                setHelp('Checking availability…', 'neutral');
-                checkUsername(value);
-            }, 350);
-        });
-    </script>
-
-</x-guest-layout>
+</body>
+</html>
