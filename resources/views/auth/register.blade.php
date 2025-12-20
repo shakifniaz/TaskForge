@@ -78,6 +78,18 @@
                         </div>
                     </div>
 
+                    {{-- Username (FIX) --}}
+                    <div>
+                        <label class="text-sm font-semibold tf-h">Username</label>
+                        <input
+                            type="text"
+                            name="username"
+                            required
+                            class="mt-1 tf-input"
+                            placeholder="yourname"
+                        >
+                    </div>
+
                     {{-- Email --}}
                     <div>
                         <label class="text-sm font-semibold tf-h">Email</label>
@@ -118,6 +130,7 @@
 
 {{-- ===== Styles ===== --}}
 <style>
+/* (unchanged — kept exactly as you provided) */
 .tf-bg {
     background:
         radial-gradient(900px 400px at 10% 20%, rgba(87,167,115,.35), transparent 60%),
@@ -182,6 +195,7 @@ html.dark #themeToggle {
 
 {{-- ===== Scripts ===== --}}
 <script>
+/* unchanged */
 const toggle = document.getElementById('themeToggle');
 const sun = document.getElementById('iconSun');
 const moon = document.getElementById('iconMoon');
@@ -195,7 +209,7 @@ function applyTheme(isDark) {
 applyTheme(localStorage.getItem('tf_theme') === 'dark');
 toggle.addEventListener('click', () => applyTheme(!document.documentElement.classList.contains('dark')));
 
-// Password strength
+// Password strength meter
 const pwd = document.getElementById('password');
 const bar = document.getElementById('strengthBar');
 const text = document.getElementById('strengthText');
