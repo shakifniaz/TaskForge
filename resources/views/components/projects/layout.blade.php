@@ -3,8 +3,8 @@
     'active' => 'overview'
 ])
 
-<div x-data="{ collapsed: false }" class="h-screen">
-    {{-- Fixed Sidebar --}}
+<div x-data="sidebarState()" x-init="init()" class="h-screen">
+    {{-- Sidebar --}}
     <aside
         class="fixed inset-y-0 left-0 z-40 border-r border-black/10 transition-all duration-200 overflow-hidden tf-sidebar"
         :class="collapsed ? 'w-20' : 'w-72'"
@@ -23,18 +23,19 @@
              style="background: linear-gradient(135deg, rgba(209,250,255,0.0), rgba(209,250,255,1), rgba(209,250,255,0.0));">
         </div>
 
-        {{-- Sidebar Header --}}
-        <div class="relative h-16 flex items-center justify-between px-4 border-b border-black/10">
+        {{-- Sidebar Header (same thickness as navbar) --}}
+        <div class="relative h-20 flex items-center justify-between px-4 border-b border-black/10">
             <div class="min-w-0" x-show="!collapsed" x-transition>
-                <div class="mt-0.5 font-extrabold text-[18px] leading-6 text-gray-900 truncate tf-project-name">
+                <div class="font-extrabold text-[20px] leading-6 text-gray-900 truncate tf-project-name">
                     {{ $project->name }}
                 </div>
             </div>
 
             <button
                 type="button"
-                class="inline-flex items-center justify-center h-10 w-10 rounded-2xl border border-black/10 bg-white/80 hover:bg-white hover:-translate-y-0.5 hover:shadow-md transition tf-sb-btn"
-                @click="collapsed = !collapsed"
+                class="inline-flex items-center justify-center h-11 w-11 rounded-2xl border border-black/10 bg-white/80
+                       hover:bg-white hover:-translate-y-0.5 hover:shadow-md transition tf-sb-btn"
+                @click="toggle()"
                 :aria-label="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
             >
                 <svg class="h-5 w-5 tf-icon" viewBox="0 0 20 20" fill="currentColor">
@@ -44,22 +45,28 @@
         </div>
 
         @php
-            $linkBase = "group flex items-center gap-3 px-3 py-2.5 text-sm rounded-2xl mx-3 transition transform-gpu";
-            $activeCls = "bg-white/90 shadow-sm border border-black/10 text-black font-semibold";
-            $idleCls = "text-black/80 hover:bg-white/70";
-            $iconWrap = "h-10 w-10 rounded-2xl flex items-center justify-center border border-black/10 bg-white/70 group-hover:bg-white transition shrink-0";
+            $linkBase  = "group flex items-center gap-3 px-3 py-2.5 text-sm rounded-2xl mx-3 transition transform-gpu";
+            $activeCls = "bg-white/90 shadow-sm border border-black/10 text-black font-semibold ring-1 ring-black/5";
+            $idleCls   = "text-black/80 hover:bg-white/70";
+            $iconWrap  = "h-10 w-10 rounded-2xl flex items-center justify-center border border-black/10 bg-white/70 group-hover:bg-white transition shrink-0";
             $sectionTitle = "px-6 mt-6 mb-2 text-[11px] font-semibold tracking-wider text-black/50 uppercase";
-            $divider = "my-4 border-t border-black/10 mx-4";
+            $divider   = "my-4 border-t border-black/10 mx-4";
         @endphp
 
-        {{-- ✅ Scrollable sidebar content (only this scrolls) --}}
-        <nav class="relative py-4 overflow-y-auto"
-             style="height: calc(100vh - 4rem);">
+        {{-- ✅ Scrollable sidebar content (sidebar scrolls; page doesn't) --}}
+        <nav class="relative py-4 overflow-y-auto tf-sb-scroll"
+             style="height: calc(100vh - 5rem);"
+             :class="collapsed ? 'px-0' : ''"
+        >
+            {{-- Section title only when expanded --}}
             <div class="{{ $sectionTitle }}" x-show="!collapsed" x-transition>Main</div>
 
+            {{-- LINKS --}}
             <a href="{{ route('projects.overview', $project) }}"
-               class="{{ $linkBase }} {{ $active === 'overview' ? $activeCls : $idleCls }} tf-sb-link tf-hover">
-                <span class="{{ $iconWrap }}">
+               class="{{ $linkBase }} {{ $active === 'overview' ? $activeCls : $idleCls }} tf-sb-link tf-hover"
+               :class="collapsed ? 'tf-collapsed-link' : ''"
+               :title="collapsed ? 'Overview' : ''">
+                <span class="{{ $iconWrap }}" :class="collapsed ? 'tf-collapsed-iconwrap' : ''">
                     <svg class="h-5 w-5 tf-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 11.5 12 4l9 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-8.5Z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 22v-7h6v7"/>
@@ -69,8 +76,10 @@
             </a>
 
             <a href="{{ route('projects.chat', $project) }}"
-               class="{{ $linkBase }} {{ $active === 'chat' ? $activeCls : $idleCls }} tf-sb-link tf-hover">
-                <span class="{{ $iconWrap }}">
+               class="{{ $linkBase }} {{ $active === 'chat' ? $activeCls : $idleCls }} tf-sb-link tf-hover"
+               :class="collapsed ? 'tf-collapsed-link' : ''"
+               :title="collapsed ? 'Chat' : ''">
+                <span class="{{ $iconWrap }}" :class="collapsed ? 'tf-collapsed-iconwrap' : ''">
                     <svg class="h-5 w-5 tf-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z"/>
                     </svg>
@@ -79,8 +88,10 @@
             </a>
 
             <a href="{{ route('projects.tasks', $project) }}"
-               class="{{ $linkBase }} {{ $active === 'tasks' ? $activeCls : $idleCls }} tf-sb-link tf-hover">
-                <span class="{{ $iconWrap }}">
+               class="{{ $linkBase }} {{ $active === 'tasks' ? $activeCls : $idleCls }} tf-sb-link tf-hover"
+               :class="collapsed ? 'tf-collapsed-link' : ''"
+               :title="collapsed ? 'Tasks' : ''">
+                <span class="{{ $iconWrap }}" :class="collapsed ? 'tf-collapsed-iconwrap' : ''">
                     <svg class="h-5 w-5 tf-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25">
                         <path stroke-linecap="round" stroke-linejoin="round" d="m20 6-11 11-5-5"/>
                     </svg>
@@ -89,8 +100,10 @@
             </a>
 
             <a href="{{ route('projects.board', $project) }}"
-               class="{{ $linkBase }} {{ $active === 'board' ? $activeCls : $idleCls }} tf-sb-link tf-hover">
-                <span class="{{ $iconWrap }}">
+               class="{{ $linkBase }} {{ $active === 'board' ? $activeCls : $idleCls }} tf-sb-link tf-hover"
+               :class="collapsed ? 'tf-collapsed-link' : ''"
+               :title="collapsed ? 'Board' : ''">
+                <span class="{{ $iconWrap }}" :class="collapsed ? 'tf-collapsed-iconwrap' : ''">
                     <svg class="h-5 w-5 tf-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 5h7v14H4V5Zm9 0h7v8h-7V5Zm0 10h7v4h-7v-4Z"/>
                     </svg>
@@ -99,8 +112,10 @@
             </a>
 
             <a href="{{ route('projects.roadmap', $project) }}"
-               class="{{ $linkBase }} {{ $active === 'roadmap' ? $activeCls : $idleCls }} tf-sb-link tf-hover">
-                <span class="{{ $iconWrap }}">
+               class="{{ $linkBase }} {{ $active === 'roadmap' ? $activeCls : $idleCls }} tf-sb-link tf-hover"
+               :class="collapsed ? 'tf-collapsed-link' : ''"
+               :title="collapsed ? 'Roadmap' : ''">
+                <span class="{{ $iconWrap }}" :class="collapsed ? 'tf-collapsed-iconwrap' : ''">
                     <svg class="h-5 w-5 tf-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h10M7 17h10M9 7v10M15 7v10"/>
                     </svg>
@@ -109,8 +124,10 @@
             </a>
 
             <a href="{{ route('projects.activity', $project) }}"
-               class="{{ $linkBase }} {{ $active === 'activity' ? $activeCls : $idleCls }} tf-sb-link tf-hover">
-                <span class="{{ $iconWrap }}">
+               class="{{ $linkBase }} {{ $active === 'activity' ? $activeCls : $idleCls }} tf-sb-link tf-hover"
+               :class="collapsed ? 'tf-collapsed-link' : ''"
+               :title="collapsed ? 'Activity' : ''">
+                <span class="{{ $iconWrap }}" :class="collapsed ? 'tf-collapsed-iconwrap' : ''">
                     <svg class="h-5 w-5 tf-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 12h3l2-6 4 12 2-6h3"/>
                     </svg>
@@ -119,8 +136,10 @@
             </a>
 
             <a href="{{ route('projects.files', $project) }}"
-               class="{{ $linkBase }} {{ $active === 'files' ? $activeCls : $idleCls }} tf-sb-link tf-hover">
-                <span class="{{ $iconWrap }}">
+               class="{{ $linkBase }} {{ $active === 'files' ? $activeCls : $idleCls }} tf-sb-link tf-hover"
+               :class="collapsed ? 'tf-collapsed-link' : ''"
+               :title="collapsed ? 'Files' : ''">
+                <span class="{{ $iconWrap }}" :class="collapsed ? 'tf-collapsed-iconwrap' : ''">
                     <svg class="h-5 w-5 tf-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21.44 11.05 12.5 20a6 6 0 0 1-8.49-8.49l9.9-9.9a4.5 4.5 0 0 1 6.36 6.36l-9.9 9.9a2.5 2.5 0 1 1-3.54-3.54l8.84-8.84"/>
                     </svg>
@@ -129,8 +148,10 @@
             </a>
 
             <a href="{{ route('projects.reports', $project) }}"
-               class="{{ $linkBase }} {{ $active === 'reports' ? $activeCls : $idleCls }} tf-sb-link tf-hover">
-                <span class="{{ $iconWrap }}">
+               class="{{ $linkBase }} {{ $active === 'reports' ? $activeCls : $idleCls }} tf-sb-link tf-hover"
+               :class="collapsed ? 'tf-collapsed-link' : ''"
+               :title="collapsed ? 'Reports' : ''">
+                <span class="{{ $iconWrap }}" :class="collapsed ? 'tf-collapsed-iconwrap' : ''">
                     <svg class="h-5 w-5 tf-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 19V5m0 14h16M8 17v-6m4 6V7m4 10v-4"/>
                     </svg>
@@ -143,8 +164,10 @@
             <div class="{{ $sectionTitle }}" x-show="!collapsed" x-transition>Project</div>
 
             <a href="{{ route('projects.members', $project) }}"
-               class="{{ $linkBase }} {{ $active === 'members' ? $activeCls : $idleCls }} tf-sb-link tf-hover">
-                <span class="{{ $iconWrap }}">
+               class="{{ $linkBase }} {{ $active === 'members' ? $activeCls : $idleCls }} tf-sb-link tf-hover"
+               :class="collapsed ? 'tf-collapsed-link' : ''"
+               :title="collapsed ? 'Members' : ''">
+                <span class="{{ $iconWrap }}" :class="collapsed ? 'tf-collapsed-iconwrap' : ''">
                     <svg class="h-5 w-5 tf-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/>
@@ -156,51 +179,50 @@
             </a>
 
             <a href="{{ route('projects.manage', $project) }}"
-               class="{{ $linkBase }} {{ $active === 'manage' ? $activeCls : $idleCls }} tf-sb-link tf-hover">
-                <span class="{{ $iconWrap }}">
+               class="{{ $linkBase }} {{ $active === 'manage' ? $activeCls : $idleCls }} tf-sb-link tf-hover"
+               :class="collapsed ? 'tf-collapsed-link' : ''"
+               :title="collapsed ? 'Manage Project' : ''">
+                <span class="{{ $iconWrap }}" :class="collapsed ? 'tf-collapsed-iconwrap' : ''">
+                    {{-- Cog (lucide settings) --}}
                     <svg class="h-5 w-5 tf-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.4 15a7.8 7.8 0 0 0 .1-6l2-1.2-2-3.4-2.2 1a8 8 0 0 0-5-2L12 1H8l-.3 2.2a8 8 0 0 0-5 2l-2.2-1-2 3.4L.5 9a7.8 7.8 0 0 0 .1 6L-1.5 16.2l2 3.4 2.2-1a8 8 0 0 0 5 2L8 23h4l.3-2.2a8 8 0 0 0 5-2l2.2 1 2-3.4-2-1.2Z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-1.41 3.41h-.08a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33H9.72a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0l-.06-.06A1.65 1.65 0 0 0 3.13 19.4a2 2 0 0 1-1.41-3.41l.06-.06A1.65 1.65 0 0 0 2.11 14v-.08a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 1.41-3.41h.08A1.65 1.65 0 0 0 5 8.3l.06-.06a2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33h.08a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33h.08A2 2 0 0 1 20.87 8.6a2 2 0 0 1 1.41 3.41l-.06.06a1.65 1.65 0 0 0-.33 1.82V14c0 .64-.2 1.25-.49 1.73Z"/>
                     </svg>
                 </span>
                 <span x-show="!collapsed" x-transition>Manage Project</span>
             </a>
 
-            {{-- little bottom padding so last item isn't flush --}}
             <div class="h-4"></div>
         </nav>
     </aside>
 
     {{-- Main area --}}
     <div class="h-screen flex flex-col" :class="collapsed ? 'ml-20' : 'ml-72'">
-
-        {{-- Top Navbar (slightly thicker) --}}
+        {{-- Top Navbar --}}
         <header class="h-20 border-b border-black/10 flex items-center justify-between px-4 sm:px-6 lg:px-8 tf-topbar">
-            {{-- Left: TaskForge --}}
+            {{-- Left --}}
             <div class="flex items-center gap-3 min-w-0">
                 <img src="{{ asset('assets/logos/TaskForgeGreen.svg') }}" alt="TaskForge" class="h-10 w-10" />
                 <div class="min-w-0">
-                    <div class="font-extrabold tf-title text-[20px] leading-6 truncate">
+                    <div class="font-extrabold tf-title text-[22px] leading-6 truncate">
                         TaskForge
                     </div>
                 </div>
             </div>
 
-            {{-- Right: actions --}}
+            {{-- Right --}}
             <div class="flex items-center gap-3">
-                {{-- Projects --}}
                 <a href="{{ route('projects.index') }}"
-                    title="Projects"
-                    class="h-14 w-14 inline-flex items-center justify-center rounded-2xl
-                        text-white hover:-translate-y-0.5 hover:shadow-lg transition tf-primary-btn"
-                    style="background-color:#57A773;">
+                   title="Projects"
+                   class="h-14 w-14 inline-flex items-center justify-center rounded-2xl
+                          text-white hover:-translate-y-0.5 hover:shadow-lg transition tf-primary-btn"
+                   style="background-color:#57A773;">
                     <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25">
                         <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M3 7a2 2 0 012-2h4l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
+                              d="M3 7a2 2 0 012-2h4l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
                     </svg>
                 </a>
 
-                {{-- Profile --}}
                 <a href="{{ route('dashboard') }}"
                    title="Profile"
                    class="h-14 w-14 inline-flex items-center justify-center rounded-2xl
@@ -213,7 +235,6 @@
                     </svg>
                 </a>
 
-                {{-- Dark Mode --}}
                 <button
                     type="button"
                     id="themeToggle"
@@ -234,7 +255,6 @@
                     </svg>
                 </button>
 
-                {{-- Logout --}}
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit"
@@ -251,7 +271,7 @@
             </div>
         </header>
 
-        {{-- Scrollable content --}}
+        {{-- Content --}}
         <main class="flex-1 overflow-y-auto tf-page" style="background-color:#EFEFEF;">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {{ $slot }}
@@ -263,12 +283,30 @@
         .tf-topbar { background: rgba(255,255,255,0.75); backdrop-filter: blur(10px); }
         .tf-title { color: #157145; }
 
+        /* Collapsed sidebar: make link a centered square button */
+        .tf-collapsed-link {
+            justify-content: center !important;
+            padding-left: 0.75rem !important;
+            padding-right: 0.75rem !important;
+            margin-left: 0.75rem !important;
+            margin-right: 0.75rem !important;
+        }
+        .tf-collapsed-link > span:last-child { display: none !important; }
+        .tf-collapsed-iconwrap {
+            height: 2.75rem !important;
+            width: 2.75rem !important;
+        }
+
         /* Sidebar hover animation */
         .tf-hover:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.10);
         }
-        .tf-hover:active { transform: translateY(0px); }
+        .tf-hover:active { transform: translateY(0px); box-shadow: none; }
+
+        /* Scrollbar (only sidebar nav) */
+        .tf-sb-scroll::-webkit-scrollbar { width: 10px; }
+        .tf-sb-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 999px; }
 
         /* Dark theme */
         html.dark body { background: #0b0f14; }
@@ -278,39 +316,32 @@
             border-color: rgba(255,255,255,0.08) !important;
         }
 
-        /* Sidebar dark */
         html.dark aside {
             background-color: #0f1a17 !important;
             border-color: rgba(255,255,255,0.08) !important;
         }
 
-        /* Sidebar gradient toned down */
         html.dark .tf-sb-grad { opacity: 0.25 !important; }
         html.dark .tf-sb-shine { opacity: 0.10 !important; }
 
-        /* Project name in sidebar should be white */
         html.dark .tf-project-name { color: #ffffff !important; }
-
-        /* Titles */
         html.dark .tf-title { color: #e9eef5 !important; }
 
-        /* Theme button */
         html.dark .tf-theme-btn {
             background: #121a22 !important;
             border-color: rgba(255,255,255,0.10) !important;
             color: #e9eef5 !important;
         }
 
-        /* Logout in dark */
         html.dark .tf-logout-btn { background: #0b0f14 !important; }
 
-        /* Collapse button dark in dark mode, icon stays white */
+        /* Collapse button dark in dark mode */
         html.dark .tf-sb-btn {
             background: #121a22 !important;
             border-color: rgba(255,255,255,0.10) !important;
         }
 
-        /* Make ALL icons white in dark mode */
+        /* Icons white in dark mode */
         html.dark .tf-icon {
             color: #ffffff !important;
             stroke: #ffffff !important;
@@ -318,9 +349,9 @@
         }
         html.dark svg[fill="currentColor"] { fill: #ffffff !important; }
 
-        /* Sidebar link colors */
-        html.dark .text-black\/80 { color: rgba(233,238,245,0.75) !important; }
-        html.dark .text-black\/50 { color: rgba(233,238,245,0.45) !important; }
+        /* Text palette swaps */
+        html.dark .text-black\/80 { color: rgba(233,238,245,0.78) !important; }
+        html.dark .text-black\/50 { color: rgba(233,238,245,0.48) !important; }
         html.dark .border-black\/10 { border-color: rgba(255,255,255,0.10) !important; }
 
         html.dark .bg-white\/90,
@@ -329,7 +360,7 @@
             background: rgba(18,26,34,0.70) !important;
         }
 
-        /* Active sidebar item text white in dark mode */
+        /* Active item text white in dark mode */
         html.dark .tf-sb-link.bg-white\/90 { color: #ffffff !important; }
         html.dark .tf-sb-link.bg-white\/90 span,
         html.dark .tf-sb-link.bg-white\/90 svg {
@@ -337,20 +368,39 @@
             stroke: #ffffff !important;
         }
 
-        /* Optional: nicer scrollbar */
-        nav::-webkit-scrollbar { width: 10px; }
-        nav::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 999px; }
-        html.dark nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.14); }
+        html.dark .tf-sb-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.14); }
     </style>
 
     <script>
-        (function () {
+        function sidebarState() {
+            return {
+                collapsed: false,
+
+                init() {
+                    // restore collapse state
+                    const saved = localStorage.getItem('tf_sidebar_collapsed');
+                    this.collapsed = (saved === '1');
+                },
+
+                toggle() {
+                    this.collapsed = !this.collapsed;
+                    localStorage.setItem('tf_sidebar_collapsed', this.collapsed ? '1' : '0');
+                }
+            }
+        }
+
+        // 🔒 Run ONCE globally
+        (function initThemeOnce() {
+            if (window.__tfThemeInit) return;
+            window.__tfThemeInit = true;
+
             const toggle = document.getElementById('themeToggle');
             const iconSun = document.getElementById('iconSun');
             const iconMoon = document.getElementById('iconMoon');
 
-            function apply(mode) {
-                const isDark = mode === 'dark';
+            if (!toggle) return;
+
+            function apply(isDark) {
                 document.documentElement.classList.toggle('dark', isDark);
                 localStorage.setItem('tf_theme', isDark ? 'dark' : 'light');
 
@@ -360,13 +410,15 @@
                 }
             }
 
+            // Load saved theme
             const saved = localStorage.getItem('tf_theme');
-            apply(saved === 'dark' ? 'dark' : 'light');
+            apply(saved === 'dark');
 
-            toggle?.addEventListener('click', () => {
+            toggle.addEventListener('click', () => {
                 const isDark = document.documentElement.classList.contains('dark');
-                apply(isDark ? 'light' : 'dark');
+                apply(!isDark);
             });
         })();
     </script>
+
 </div>
