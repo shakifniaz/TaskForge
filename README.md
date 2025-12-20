@@ -1,59 +1,224 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<div align="center">
+  <img src="public/assets/logos/TaskForgeGreen.svg" alt="TaskForge Logo" width="160"/>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+  <h1>TaskForge</h1>
 
-## About Laravel
+  <p><strong>Forge clarity. Build momentum.</strong></p>
+</div>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🚀 About TaskForge
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**TaskForge** is a full-featured project management web application designed to help individuals and teams **plan, organize, and collaborate** efficiently.
 
-## Learning Laravel
+It brings together task tracking, milestones, real-time communication, file sharing, and role-based collaboration into a **single, clean workspace**.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+TaskForge focuses on **clarity**, **accountability**, and **momentum** — so everyone always knows:
+- what needs to be done
+- who is responsible
+- and what comes next
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## ✨ Core Features
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 🗂 Project Management
+- Create and manage multiple projects
+- Assign project owners and members
+- Role-based access (Owners vs Members)
 
-### Premium Partners
+### ✅ Task Management
+- Create, edit, and assign tasks
+- Track task status and progress
+- Set deadlines and priorities
+- Visual task boards (Kanban-style)
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### 🧩 Milestones & Progress
+- Break projects into milestones
+- Track long-term goals visually
+- Monitor overall project progress
 
-## Contributing
+### 💬 Real-Time Project Chat
+- Project-specific chat rooms
+- Real-time message updates
+- File and image attachments
+- Clear message ownership and timestamps
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 📁 File Management
+- Upload and share files within chats
+- Image previews and downloadable attachments
+- Secure file storage per project
 
-## Code of Conduct
+### 👥 Team Collaboration
+- Invite members to projects
+- Manage members from the project settings
+- Owner-only management controls
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 🌗 Dark Mode
+- System-wide dark mode support
+- Persistent theme using local storage
+- Seamless UI transitions
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 🧭 User Guide
 
-## License
+### 1️⃣ Getting Started
+1. Visit the TaskForge homepage
+2. Register a new account
+3. Log in to access your dashboard
+4. Create your first project
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 2️⃣ Creating a Project
+- Click **Create Project**
+- Set a project name
+- You become the project owner automatically
+
+### 3️⃣ Managing Tasks
+- Add tasks inside a project
+- Assign tasks to members
+- Update task status as work progresses
+
+### 4️⃣ Using Project Chat
+- Open the **Chat** tab inside a project
+- Send messages in real time
+- Attach files or images
+- Messages update automatically without refreshing
+
+### 5️⃣ Managing Team Members
+- Owners can add or remove members
+- Members can collaborate but cannot manage settings
+- Owners have exclusive access to management tabs
+
+### 6️⃣ Profile & Account
+- Update personal details
+- Change password
+- Delete account if needed
+
+---
+
+## 🔍 Feature Details
+
+### 🔐 Role-Based Access
+| Role   | Permissions |
+|------|-------------|
+| Owner | Full control (settings, members, delete project) |
+| Member | Tasks, chat, files |
+
+### ⚡ Real-Time Updates
+- Chat messages load automatically via polling
+- No page refresh required
+- Smooth and responsive UX
+
+### 🎨 Modern UI
+- Glassmorphism cards
+- Subtle gradients and animations
+- Fully responsive layout
+
+---
+
+## ❓ Frequently Asked Questions (FAQs)
+
+### ❔ Who can manage a project?
+Only the **project owner** can manage settings, members, and delete the project.
+
+### ❔ Can members chat and upload files?
+Yes. All project members can chat and share files.
+
+### ❔ Is dark mode supported?
+Yes. Dark mode can be toggled and is saved across sessions.
+
+### ❔ Are files stored securely?
+Yes. Files are stored per project and only accessible to members.
+
+### ❔ Can I use TaskForge alone?
+Absolutely. TaskForge works great for both solo and team projects.
+
+---
+
+## 🛠 Installation Guide
+
+## ✅ Prerequisites
+Make sure you have the following installed:
+- **PHP 8.1+**
+- **Composer**
+- **Node.js & npm**
+- **MySQL / SQLite**
+- **Laravel CLI (optional)**
+
+## 📦 Clone the Repository
+```bash
+git clone https://github.com/your-username/taskforge.git
+cd taskforge
+```
+
+## 📥 Install PHP Dependencies
+```bash
+composer install
+```
+
+## 📥 Install Frontend Dependencies
+```bash
+nmp install
+```
+
+## ⚙️ Environment Setup
+Copy the example environment file:
+```bash
+cp .env.example .env
+```
+
+Generate the application key:
+```bash
+php artisan key:generate
+```
+
+## 🗄 Configure Database
+Edit .env and set your database credentials:
+```bash
+DB_DATABASE=taskforge
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+Run migrations:
+```bash
+php artisan migrate
+```
+
+(Optional) Seed data:
+```bash
+php artisan db:seed
+```
+
+## 🎨 Build Frontend Assets:
+```bash
+npm run build
+```
+
+For development:
+```bash
+npm run dev
+```
+
+## ▶️ Run the Application:
+```bash
+php artisan serve
+```
+
+Open your browser:
+```bash
+http://127.0.0.1:8000
+```
+
+## 👩‍💻 Developer:
+**Shakif Niaz**
+ID: 232-134-040
+Batch: 5th
+Department: Software Engineering
+Project: TaskForge
+
+---
+
+<div align="center"> <strong>TaskForge — Forge clarity. Build momentum.</strong> </div>
